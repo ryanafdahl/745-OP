@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Public comma 4 source installer. Run from setup, or from an SSH shell."""
+"""Optional comma 4 source installer for SSH; not a setup-screen ELF installer."""
 import os
 from pathlib import Path
 import platform
@@ -10,7 +10,7 @@ import subprocess
 import tempfile
 import time
 
-REPOSITORY = "https://github.com/ryanafdahl/nrdr-OP-jetson-trt.git"
+REPOSITORY = "https://github.com/ryanafdahl/nrdr-jetson.git"
 REVISION = "b6756fe80c3df2e0bbfde3c512d29e02cf1127b5"
 JETLINK = "a01fcae9709cb4924854f0c52806849c62dec5c9"
 CONTINUE = "#!/usr/bin/env bash\ncd /data/openpilot\nexec ./launch_openpilot.sh\n"
