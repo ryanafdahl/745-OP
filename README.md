@@ -13,7 +13,7 @@ Experimental Jetson acceleration port for **comma 4**, based on NRDR's `nrdr-cle
 
 | Component | Pinned revision |
 | --- | --- |
-| Installed source candidate | `97629ae3bd9f501777d4282c9cef2032c28e4efd` |
+| Installed source candidate | `b6756fe80c3df2e0bbfde3c512d29e02cf1127b5` |
 | Short-install branch | `ryanafdahl/openpilot` → `nrdr-OP-jetson-trt` |
 | NRDR clean base | `b3366b5b56512805be8f0bf832b4981bfd958072` |
 | Zoompilot donor | `bcb49d740eb7f7181c2c4aba6de5177b03f88ba3` |
@@ -37,7 +37,7 @@ No SSH, long URL, separate staging build, or rollback step is required.
 
 Both uppercase `nrdr-OP-jetson-trt` and lowercase `nrdr-op-jetson-trt` install branches point to the same candidate. Use lowercase for easier entry. A misspelled or nonexistent branch can misleadingly produce “incompatible openpilot version”; that message alone does not prove an OS mismatch.
 
-Comma's setup screen expands `username/branch` to its compiled fork installer. This entry installs branch `nrdr-OP-jetson-trt` from [ryanafdahl/openpilot](https://github.com/ryanafdahl/openpilot/tree/nrdr-OP-jetson-trt). That branch publishes the candidate from this development repository; it currently points to `97629ae3bd9f501777d4282c9cef2032c28e4efd`. It does not automatically track new development commits.
+Comma's setup screen expands `username/branch` to its compiled fork installer. This entry installs branch `nrdr-OP-jetson-trt` from [ryanafdahl/openpilot](https://github.com/ryanafdahl/openpilot/tree/nrdr-OP-jetson-trt). That branch publishes the candidate from this development repository; it currently points to `b6756fe80c3df2e0bbfde3c512d29e02cf1127b5`. It does not automatically track new development commits.
 
 The equivalent full URL is:
 
@@ -70,6 +70,13 @@ tmux capture-pane -p -S -2000 -t comma > /data/jetson-first-boot.txt
 Include the log, on-screen error, installed commit, AGNOS version, and Jetson model/software versions when reporting a failure. If the installer stops before replacing the checkout, fix the reported requirement instead of bypassing it. If compilation fails, do not create a `prebuilt` marker to skip the build.
 
 ## Change log
+
+### 2026-09-19 — Restore the missing native model build input
+
+- Fixed the first-boot `FileNotFoundError` in `modeld/SConscript`: the prebuilt NRDR base had stripped `driving_supercombo.onnx`.
+- Restored the 60,881,999-byte model from NRDR source revision `30485aaab876e0a66776eddfd652444f1801ceca`, verified against its published SHA-256, and stored it in two Git-friendly chunks.
+- Added mandatory input-integrity validation and regression tests; 69 tests passed twice. The next native build still requires device verification.
+- Published the fix to both install-name variants. Reinstall with the same lowercase short entry to receive it.
 
 ### 2026-09-19 — Short-name factory-reset installation
 
