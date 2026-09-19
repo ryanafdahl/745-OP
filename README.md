@@ -18,6 +18,8 @@ The [compiled installer](https://installer.comma.ai/ryanafdahl/nrdr-jetson) inst
 
 ## Connect the Jetson
 
+**Calibration first (user-reported workaround):** before plugging in the Jetson, complete the comma's normal driving calibration using a known-working native setup, then park and connect the accelerator. The user reported that connecting before calibration left the GPU icon flashing grey indefinitely. This sequence has not been independently verified as a fix; grey flashing also occurs during connection waits, downloads, or failures. This note does not qualify this experimental build for road use.
+
 1. Install the matching [Jetlink server](https://github.com/zoompilot/jetlink/blob/a01fcae9709cb4924854f0c52806849c62dec5c9/docs/jetson.md) separately; the comma installer does not install it.
 2. Power the Jetson separately, with a supply suitable for **25 W mode**. Connect a **USB 3 data cable: Jetson USB-A → comma USB-C**.
 3. While offroad, enable **Settings → Models → Accelerator Link**. Start with the default big model.
