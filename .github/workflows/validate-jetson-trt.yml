@@ -54,6 +54,7 @@ jobs:
           python3 -m pip freeze > audit-output/test-dependencies.txt
           for pass in 1 2; do
             python3 -m unittest -v \
+              tools.test_jetson_staged_build \
               openpilot.sunnypilot.accelerators.jetlink.tests.test_gadget \
               openpilot.sunnypilot.accelerators.jetlink.tests.test_lending \
               openpilot.sunnypilot.accelerators.jetlink.tests.test_lending_cleanup \
