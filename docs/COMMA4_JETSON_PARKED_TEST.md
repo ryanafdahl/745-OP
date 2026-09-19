@@ -25,7 +25,7 @@ The following remain required: a clean target build, native boot/import checks, 
 
 ## Corrections to earlier installation instructions
 
-The earlier `installer.comma.ai/ryanafdahl/jetson-trt` URL is **not a verified installer for this repository**. The documented comma example uses an account's `openpilot` repository; this development repository is now named `nrdr-jetson`. It is now public. The direct installation guide now uses `ryanafdahl/nrdr-OP-jetson-trt`, backed by a published candidate branch in `ryanafdahl/openpilot`. The earlier raw Python URL is invalid for the setup screen because that screen requires an ELF installer.
+The earlier `installer.comma.ai/ryanafdahl/jetson-trt` URL is **not a verified installer for this repository**. The documented comma example uses an account's `openpilot` repository; this development repository is now named `nrdr-jetson`. It is now public. The direct installation guide now uses `ryanafdahl/nrdr-jetson`, backed by a published candidate branch in `ryanafdahl/openpilot`. The earlier raw Python URL is invalid for the setup screen because that screen requires an ELF installer.
 
 Before any install, inspect the actual installer payload and establish that its repository, branch, revision, authentication and submodule behavior match this project. Use an authenticated staging method or a reviewed installer with the exact repository. Do not put a GitHub token in a publicly shared URL, publish the repository without explicit permission, or rename it merely to follow the earlier URL.
 
