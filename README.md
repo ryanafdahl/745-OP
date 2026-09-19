@@ -21,35 +21,26 @@ Experimental Jetson acceleration port for **comma 4**, based on NRDR's `nrdr-cle
 
 The source and installer revisions differ intentionally: the installer was published after the source candidate and selects that candidate explicitly.
 
-## Install on an existing comma 4
+## Install after a factory reset
 
-Use a direct SSH shell **on the comma**, outside tmux, with ignition off and the device powered and online:
+The preferred procedure for this repository is a fresh factory reset for every installation. Resetting removes the previous installation and local configuration; this route does not use a rollback checkout.
 
-```bash
-curl --fail --location --retry 3 https://raw.githubusercontent.com/ryanafdahl/nrdr-OP-jetson-trt/af6bf0afb069f0fdca9cd89c131496005bf9fe78/tools/install_jetson.py -o /tmp/install-jetson.py &&
-python3 /tmp/install-jetson.py
-```
-
-The installer checks for comma 4, **AGNOS 19.7**, Git LFS, passwordless sudo, and at least **12 GiB free**. It downloads the pinned source and Jetlink submodule, hydrates model files, and checks compatibility before replacing the current checkout. It does not upgrade AGNOS.
-
-For an existing installation, it:
-
-1. Preserves the old checkout and launcher.
-2. Prints a rollback command; save it.
-3. Installs the candidate at `/data/openpilot` and restarts the normal launcher.
-4. Lets the comma compile the source on first startup.
-
-**Keep power connected during compilation.** The launcher now stops if compilation fails instead of continuing into manager with inherited binaries. No separate staging build is required to use this installer.
-
-### Device already at the software setup screen
-
-Use this complete custom software URL:
+1. Factory reset the comma 4.
+2. Reconnect it to Wi-Fi and complete setup until the custom software URL prompt.
+3. Enter the complete URL below.
+4. Keep the device powered and online while the installer downloads the source and the comma compiles it on first startup.
 
 ```text
 https://raw.githubusercontent.com/ryanafdahl/nrdr-OP-jetson-trt/af6bf0afb069f0fdca9cd89c131496005bf9fe78/tools/install_jetson.py
 ```
 
-Do not uninstall a working installation just to reach setup; the SSH method preserves a rollback checkout. Anonymous payload download has been verified in CI, but execution through the physical setup UI has not yet been tested.
+No SSH session or separate staging build is required for this route. Use the same procedure for reinstalls.
+
+The installer checks for comma 4, **AGNOS 19.7**, Git LFS, passwordless sudo, and at least **12 GiB free**. It downloads the pinned source and Jetlink submodule and hydrates model files. It does not upgrade AGNOS; a factory reset should not be treated as an OS upgrade.
+
+**Keep power connected during compilation.** The launcher stops if compilation fails instead of continuing into manager with inherited binaries.
+
+This URL installs the pinned candidate listed above, not whichever commit happens to be newest on the branch. Anonymous payload download has been verified in CI; execution through the physical setup UI has not yet been tested.
 
 The old `installer.comma.ai/ryanafdahl/jetson-trt` URL is not the installer for this repository.
 
@@ -61,17 +52,11 @@ Jetlink is opt-in. A fresh configuration does not enable it by default, but an e
 
 For the first parked test, verify boot, camera/UI operation, and the native model path before evaluating acceleration. Keep controls disabled and do not drive; Park alone does not prevent steering actuation. Check actual model output, timing, connection loss, and fallback before expanding testing. This Jetson port does not require EPS flashing.
 
-## Rollback and troubleshooting
+## Troubleshooting
 
-For an existing installation, the installer prints the exact command:
+For a fresh reinstall, factory reset and use the same custom software URL again. No rollback command is required.
 
-```text
-bash /data/rollback-jetson-<timestamp>.sh
-```
-
-Use the printed filename rather than the placeholder above. The script restores the saved checkout and launcher, preserves the failed candidate in another directory, and restarts the previous software. Shared Params and runtime migrations are **not** rolled back.
-
-To capture first-boot output from SSH:
+If installation fails at the setup screen, record the displayed error. If SSH is available after installation, the following command captures first-boot output:
 
 ```bash
 tmux capture-pane -p -S -2000 -t comma > /data/jetson-first-boot.txt
@@ -118,7 +103,7 @@ Still unverified on hardware: first-boot compilation, setup-screen execution, US
 
 ## Documentation and development
 
-- [Installation and recovery guide](https://github.com/ryanafdahl/nrdr-OP-jetson-trt/blob/jetson-trt/docs/JETSON_INSTALL.md)
+- [Factory-reset installation guide](https://github.com/ryanafdahl/nrdr-OP-jetson-trt/blob/jetson-trt/docs/JETSON_INSTALL.md)
 - [Hardware validation and optional staging build](https://github.com/ryanafdahl/nrdr-OP-jetson-trt/blob/jetson-trt/docs/COMMA4_JETSON_PARKED_TEST.md)
 - [Source-audit workflow](https://github.com/ryanafdahl/nrdr-OP-jetson-trt/blob/jetson-trt/.github/workflows/validate-jetson-trt.yml)
 - [Installer implementation](https://github.com/ryanafdahl/nrdr-OP-jetson-trt/blob/jetson-trt/tools/install_jetson.py)
