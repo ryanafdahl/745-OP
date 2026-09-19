@@ -57,20 +57,22 @@ For each subsequent requested check, record its UTC start/end, model and telemet
 
 ### New-model preparation checks · September 19, 2026
 
-Selected: **Cinque Terre Model V2 (September 08, 2026)**, SHA prefix `09d080f36965bb2a` (~730 MiB). The comma reached the Orin and requested engine preparation at approximately **20:40:18 UTC**, after a USB reader timeout/retry.
+Selected: **Cinque Terre Model V2 (September 08, 2026)**, SHA prefix `09d080f36965bb2a` (~730 MiB). The comma reached the Orin and requested engine preparation at **20:40:18 UTC**, after a USB reader timeout/retry.
 
 | UTC sampling window | Native messages | Large-model messages | Jetlink telemetry readings |
 | --- | ---: | ---: | ---: |
 | 20:42:15–20:42:25 | 201 | 0 | 0 |
 | 20:43:52–20:44:02 | 200 | 0 | 0 |
 | 20:48:40–20:48:50 | 200 | 0 | 0 |
-| **Total (~30 seconds sampled)** | **601** | **0** | **0** |
+| 20:50:12–20:50:22 | 200 | 0 | 0 |
+| 21:02:44.696–21:02:54.703 | 200 | 0 | 0 |
+| **Total (~50 seconds sampled)** | **1,001** | **0** | **0** |
 
-Latest check: all 200 model messages valid, streams alive/valid, car stationary, controls disabled, no displayed alert. Temperature, power, fan, and GPU means remain **unavailable**, not zero; these preparation checks are excluded from BMRLNAP inference averages.
+Latest check: **200/200 model messages alive and valid**, mean speed **0 m/s**, controls disabled throughout, no displayed alert. Across the five sampled windows, the sample-weighted large-model fraction is **0/1,001 (0%)**. Temperature, power, fan, GPU load, and GPU clock means remain **unavailable**, not zero; no telemetry readings were available to pool. These checks remain separate from BMRLNAP results.
 
-At 20:48:50 UTC, about **8 min 32 s** after the request, no new handoff, completion, or error was present in the reviewed Jetlink logs. The parameter still said `load / ready`, but live inference did not confirm it. Server-side build progress cannot be determined from this stale parameter.
+At **21:02:54 UTC**, approximately **22 min 36 s** after the preparation request, the reviewed comma-side Jetlink logs still showed no subsequent handoff, completion, or error. `AcceleratorProgress` remained `load / ready`, but `JetlinkEngineReady` and `JetlinkSpec` still identified the previous BMRLNAP hash `a086d5249fc308bb`. **Cinque Terre activation is not verified.** Jetson-side service logs are needed to distinguish a transfer/build stall from ongoing work; the stale ready parameter cannot establish progress.
 
-The scheduled 20:46:47 UTC attempt was blocked before SSH by a local Windows sandbox error and contributed no samples. SSH access recovered for the 20:48:40 check. Monitoring continues until live activation is verified.
+Scheduled attempts at 20:46:47 and 20:56:17 UTC were blocked before SSH by a local Windows sandbox error and contributed no samples. Manual SSH worked for the latest check. No device settings or services were changed.
 
 ## Drive recap · September 19, 2026
 
