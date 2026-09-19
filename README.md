@@ -2,7 +2,7 @@
 
 Experimental Jetson acceleration port for **comma 4**, based on NRDR's `nrdr-clean` source. Jetlink connects the comma-side model pipeline to a separately configured NVIDIA Jetson running TensorRT. The native model path remains available as the fallback.
 
-**Current status:** a short installation entry is available through comma's standard fork installer. Source audits and portable tests pass; native compilation, USB connectivity, TensorRT inference, and vehicle behavior still require hardware testing. This is not a precompiled image or a road-qualified release.
+**Current status:** a short installation entry is available through comma's standard fork installer. Source audits and portable tests pass. On September 19, 2026, the user reported successful first-boot compilation and startup on comma 4. USB connectivity, TensorRT inference, and vehicle behavior still require hardware testing. This is not a precompiled image or a road-qualified release.
 
 ## Repository and release layout
 
@@ -50,6 +50,8 @@ The candidate targets comma 4 and AGNOS 19.7. The normal launcher handles OS com
 **Correction to earlier instructions:** comma 4's setup screen accepts compiled ELF installers. The earlier raw `install_jetson.py` URL is an SSH helper, not a valid setup-screen installer. Do not enter that Python URL after a factory reset.
 
 ## Jetson setup and first test
+
+For the pinned donor's documented Jetson configuration, use an **Orin Nano Super 8 GB with JetPack 6.2 / L4T r36.4.3**, separate power sized for 25 W mode, and a USB 3 data cable from **Jetson USB-A to comma USB-C**. Start the matching Jetlink server first. On the comma, while offroad, open **Settings → Models → Accelerator Link**, enable it, and leave **Big Model** on the default for the first connection. Keep the comma online during model provisioning. A ready indication confirms provisioning status; actual inference still needs verification.
 
 The comma installer does **not** install the Jetson server or change Jetson firmware. Use the matching [pinned Jetlink setup documentation](https://github.com/zoompilot/jetlink/blob/a01fcae9709cb4924854f0c52806849c62dec5c9/docs/jetson.md) for the server and power/data topology. Compatibility with a particular Jetson, JetPack, and TensorRT combination must be checked on that hardware.
 
@@ -118,7 +120,9 @@ The [installer validation run](https://github.com/ryanafdahl/nrdr-OP-jetson-trt/
 
 The audit checks provenance, selected protected NRDR subtree equality, parameter preservation, Jetlink pinning, opt-in behavior, syntax, and local source dependencies. Filesystem transaction tests exercise installer recovery. These checks do not establish a successful comma 4 build or live TensorRT inference.
 
-Still unverified on hardware: first-boot compilation, setup-screen execution, USB enumeration, live model outputs and timing, reconnect/fallback behavior, and vehicle operation.
+User-reported hardware milestone (September 19, 2026): installation proceeded to compilation, completed, and booted on comma 4 after restoring the native model input. This is a user observation, not a collected build-log or inference qualification.
+
+Still unverified on hardware: USB enumeration, live model outputs and timing, reconnect/fallback behavior, and vehicle operation.
 
 ## Documentation and development
 
