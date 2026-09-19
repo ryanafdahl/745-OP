@@ -74,6 +74,16 @@ At **21:02:54 UTC**, approximately **22 min 36 s** after the preparation request
 
 Scheduled attempts at 20:46:47 and 20:56:17 UTC were blocked before SSH by a local Windows sandbox error and contributed no samples. Manual SSH worked for the latest check. No device settings or services were changed.
 
+### Cinque Terre precache · September 19, 2026
+
+**Prepared on the Jetson at 21:14:25 UTC**, without the comma connected. Download verified: **766,040,736 bytes**, SHA-256 `09d080f36965bb2a0790500452bd328aa03c484d0222aa79d1ad9f021a522aec`. TensorRT **10.3.0 / Orin-sm87**, FP16 engine: **767,367,060 bytes**, recorded build time **30.5 seconds**; prepare exited successfully. One build observation, not an average or inference benchmark.
+
+The model and matching engine are stored in `/mnt/data/jetlink/models/` and `/mnt/data/jetlink/engines/`. Jetlink was stopped for compilation, then restarted and confirmed active. Both models remain cached. The server still preloads last-used BMRLNAP while waiting for USB; **Cinque Terre is cached, but live activation remains unverified**.
+
+For desk preparation, use the installed container's `python3 -m jetlink.registry fetch <ref>`, then `prepare <ref> --backend trt --cache /mnt/data/jetlink` with the same pinned image, NVIDIA runtime, and cache mount. Cinque Terre ref: `37bfa1413edcdc2e8844984b83727c33f81d8f46`. Stop the service before standalone preparation and restart afterward; do not build concurrently against its cache. See the [prefetch procedure](https://github.com/zoompilot/jetlink/blob/a01fcae9709cb4924854f0c52806849c62dec5c9/docs/models.md#on-a-jetson).
+
+After reconnecting while parked, verify the selected hash, live `modelV2.big=true`, valid/alive model messages, and fresh telemetry. Cached artifacts avoid another model download/build for this runtime; a fully offline startup still needs verification.
+
 ## Drive recap · September 19, 2026
 
 Analyzed all **16 full-rate log segments**: **14 min 58 s**, approximately **7.82 km (4.86 mi)**, maximum **44.59 mph**.
