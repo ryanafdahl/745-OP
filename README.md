@@ -61,6 +61,8 @@ At **20:42:15–20:42:25 UTC**, the selected model was **Cinque Terre Model V2 (
 
 The check received **201 native-model messages and 0 large-model messages**; streams were alive/valid, with the latest sample stationary, controls disabled, and no alert. There were **0 Jetlink inference telemetry readings**, so temperature/power/fan averages are **unavailable**, not zero. This preparation check is excluded from the earlier BMRLNAP inference averages.
 
+Repeat check **20:43:52–20:44:02 UTC**: **200 native / 0 large-model messages**, no alerts, and no Jetlink telemetry readings. Both preparation checks total **401 native / 0 large-model messages** over approximately 20 seconds; temperature, power, fan, and GPU averages remain unavailable. No new handoff or error appeared in the reviewed Jetlink log; the last preparation request was about 3 minutes 44 seconds earlier. Completion is not established.
+
 The preparation parameter said `load / ready`, but it was over two minutes old and no live large-model handoff had been observed. Treat live `modelV2.big` and telemetry as the confirmation; this check does not establish that the new engine is running.
 
 ## Drive recap · September 19, 2026
