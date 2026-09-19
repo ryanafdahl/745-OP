@@ -54,6 +54,7 @@ jobs:
           python3 -m pip freeze > audit-output/test-dependencies.txt
           for pass in 1 2; do
             python3 -m unittest -v \
+              tools.test_install_jetson \
               tools.test_jetson_staged_build \
               openpilot.sunnypilot.accelerators.jetlink.tests.test_gadget \
               openpilot.sunnypilot.accelerators.jetlink.tests.test_lending \
@@ -62,6 +63,13 @@ jobs:
               openpilot.sunnypilot.accelerators.jetlink.tests.test_vmtune \
               2>&1 | tee "audit-output/portable-tests-pass${pass}.txt"
           done
+      - name: Verify public installer payload and pinned source
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 "https://raw.githubusercontent.com/ryanafdahl/nrdr-OP-jetson-trt/${{ github.sha }}/tools/install_jetson.py" -o "$RUNNER_TEMP/public-installer.py"
+          cmp tools/install_jetson.py "$RUNNER_TEMP/public-installer.py"
+          python3 -c 'from tools.install_jetson import REVISION; import subprocess; subprocess.run(["git", "merge-base", "--is-ancestor", REVISION, "HEAD"], check=True)'
       - name: Capture exact source revision and diff
         if: ${{ !cancelled() }}
         shell: bash
@@ -85,6 +93,6 @@ jobs:
       - name: Record qualification limits
         if: always()
         run: |
-          echo '## Source audit only - installation status remains HOLD' >> "$GITHUB_STEP_SUMMARY"
+          echo '## Experimental source installer - hardware validation remains pending' >> "$GITHUB_STEP_SUMMARY"
           echo "Reviewed commit: $GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
           echo 'No comma-four build, GPU inference, USB enumeration, CAN isolation, or physical Jetson test was performed by this runner.' >> "$GITHUB_STEP_SUMMARY"
