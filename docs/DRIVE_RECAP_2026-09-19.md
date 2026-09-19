@@ -62,7 +62,7 @@ These fields have different meanings and are not interchangeable. Driver steerin
 
 **Unresolved finding:** `steerFaultTemporary` was asserted in **41 episodes totaling 22.96 seconds**, including **19.18 seconds while moving**. Some episodes overlapped lateral-active observations. No permanent steering fault or CAN timeout was recorded. This does not identify the cause or prove that steering behaved correctly; review the vehicle/EPS signals and those intervals before treating the drive as fault-free.
 
-All 3,582 recorded calibration messages reported `calibrated`. Communication, localization, and parameter-estimation events occurred during initial startup and ended by about 4.44 seconds after the first car-state message. They were not observed later in the route's onroad-event stream.
+All 3,582 recorded calibration messages reported `calibrated`. Communication, localization, and parameter-estimation events occurred during initial startup and ended by about 7.73 seconds after the first car-state message. They were not observed later in the route's onroad-event stream.
 
 ## Conclusion and remaining work
 
