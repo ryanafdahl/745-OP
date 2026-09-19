@@ -1,5 +1,7 @@
 # Comma 4: factory-reset installation
 
+The development repository is now [ryanafdahl/nrdr-jetson](https://github.com/ryanafdahl/nrdr-jetson). The custom-software entry below still uses the existing branch in `ryanafdahl/openpilot`; no reinstall is needed solely for the rename.
+
 ## Install after a factory reset
 
 1. Factory reset the comma 4.
@@ -33,7 +35,7 @@ The candidate targets comma 4 and AGNOS 19.7. The normal launcher handles OS com
 
 The installer installs comma-side software. Configure the Jetson separately using the [pinned Jetlink reference](https://github.com/zoompilot/jetlink/blob/a01fcae9709cb4924854f0c52806849c62dec5c9/docs/jetson.md). Fresh Jetlink settings are opt-in.
 
-For the first parked test, verify boot, camera/UI operation, and native model output. Keep controls disabled and do not drive; Park alone does not prevent steering actuation. Native compilation and live Jetson inference still require hardware validation.
+For the first parked test, verify boot, camera/UI operation, and native model output. Keep controls disabled and do not drive; Park alone does not prevent steering actuation. The user reported successful native compilation and boot on September 19, 2026. Live Jetson inference still requires hardware validation.
 
 ## Troubleshooting
 
