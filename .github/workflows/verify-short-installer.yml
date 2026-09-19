@@ -1,0 +1,29 @@
+name: Verify comma short installer
+on:
+  push:
+    branches: [jetson-trt]
+    paths: [.github/workflows/verify-short-installer.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Verify branch and compiled installer
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git ls-remote --heads https://github.com/ryanafdahl/openpilot.git refs/heads/nrdr-OP-jetson-trt | cut -f1)" = 97629ae3bd9f501777d4282c9cef2032c28e4efd
+          curl --fail --location --retry 3 https://installer.comma.ai/ryanafdahl/nrdr-OP-jetson-trt -o /tmp/comma-installer
+          python3 - <<'PY'
+          import hashlib
+          from pathlib import Path
+          data = Path("/tmp/comma-installer").read_bytes()
+          assert data[:4] == b"\x7fELF", "setup requires an ELF executable"
+          assert b"https://github.com/ryanafdahl/openpilot.git" in data, "wrong repository"
+          assert b"nrdr-OP-jetson-trt" in data, "wrong branch"
+          print("Verified installer ELF, repository, and branch.")
+          print("SHA256:", hashlib.sha256(data).hexdigest())
+          PY
