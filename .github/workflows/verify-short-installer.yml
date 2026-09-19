@@ -16,12 +16,12 @@ jobs:
         run: |
           set -euo pipefail
           test "$(git ls-remote --heads https://github.com/ryanafdahl/openpilot.git refs/heads/nrdr-OP-jetson-trt | cut -f1)" = 97629ae3bd9f501777d4282c9cef2032c28e4efd
-          curl --fail --location --retry 3 https://installer.comma.ai/ryanafdahl/nrdr-OP-jetson-trt -o /tmp/comma-installer
+          curl --fail --location --retry 3 -H 'X-openpilot-device-type: mici' https://installer.comma.ai/ryanafdahl/nrdr-OP-jetson-trt -o /tmp/comma-installer
           python3 - <<'PY'
           import hashlib
           from pathlib import Path
           data = Path("/tmp/comma-installer").read_bytes()
-          assert data[:4] == b"\x7fELF", "setup requires an ELF executable"
+          assert data[:4] == b"\x7fELF", f"setup requires an ELF executable; response: {data[:200]!r}"
           assert b"https://github.com/ryanafdahl/openpilot.git" in data, "wrong repository"
           assert b"nrdr-OP-jetson-trt" in data, "wrong branch"
           print("Verified installer ELF, repository, and branch.")
