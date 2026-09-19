@@ -1,6 +1,6 @@
 # Comma 4: factory-reset installation
 
-The development repository is now [ryanafdahl/nrdr-jetson](https://github.com/ryanafdahl/nrdr-jetson). The custom-software entry below still uses the existing branch in `ryanafdahl/openpilot`; no reinstall is needed solely for the rename.
+The development repository is now [ryanafdahl/nrdr-jetson](https://github.com/ryanafdahl/nrdr-jetson). The custom-software entry below uses the new `nrdr-jetson` branch in `ryanafdahl/openpilot`; no reinstall is needed solely for the rename.
 
 ## Install after a factory reset
 
@@ -9,21 +9,21 @@ The development repository is now [ryanafdahl/nrdr-jetson](https://github.com/ry
 3. Enter exactly:
 
 ```text
-ryanafdahl/nrdr-op-jetson-trt
+ryanafdahl/nrdr-jetson
 ```
 
 4. Keep the device powered and online while software downloads and compiles on first startup.
 
 No SSH, long URL, separate staging build, or rollback step is required.
 
-Both uppercase `nrdr-OP-jetson-trt` and lowercase `nrdr-op-jetson-trt` install branches point to the same candidate. Use lowercase for easier entry. A misspelled or nonexistent branch can misleadingly produce “incompatible openpilot version”; that message alone does not prove an OS mismatch.
+The new `nrdr-jetson` install branch and legacy `nrdr-OP-jetson-trt` / `nrdr-op-jetson-trt` branches point to the same candidate. Use `ryanafdahl/nrdr-jetson` for new installations. A misspelled or nonexistent branch can misleadingly produce “incompatible openpilot version”; that message alone does not prove an OS mismatch.
 
-Comma's setup screen expands `username/branch` to its compiled fork installer. This entry installs branch `nrdr-OP-jetson-trt` from [ryanafdahl/openpilot](https://github.com/ryanafdahl/openpilot/tree/nrdr-OP-jetson-trt). That branch publishes the candidate from this development repository; it currently points to `b6756fe80c3df2e0bbfde3c512d29e02cf1127b5`. It does not automatically track new development commits.
+Comma's setup screen expands `username/branch` to its compiled fork installer. This entry installs branch `nrdr-jetson` from [ryanafdahl/openpilot](https://github.com/ryanafdahl/openpilot/tree/nrdr-jetson). That branch publishes the candidate from this development repository; it currently points to `b6756fe80c3df2e0bbfde3c512d29e02cf1127b5`. It does not automatically track new development commits.
 
 The equivalent full URL is:
 
 ```text
-https://installer.comma.ai/ryanafdahl/nrdr-OP-jetson-trt
+https://installer.comma.ai/ryanafdahl/nrdr-jetson
 ```
 
 The candidate targets comma 4 and AGNOS 19.7. The normal launcher handles OS compatibility and may run its AGNOS update procedure if the installed version differs. Keep stable power available through setup and compilation. A failed source build stops before manager starts.
