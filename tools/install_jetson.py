@@ -11,7 +11,7 @@ import tempfile
 import time
 
 REPOSITORY = "https://github.com/ryanafdahl/nrdr-jetstream.git"
-REVISION = "b6320347c06c0dce3d353efdca0df80fad5c240f"
+REVISION = "2ac906bdb511e19131cfa71fc2807143a6bdbae3"
 JETLINK = "a01fcae9709cb4924854f0c52806849c62dec5c9"
 CONTINUE = "#!/usr/bin/env bash\ncd /data/openpilot\nexec ./launch_openpilot.sh\n"
 

@@ -15,7 +15,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git ls-remote --heads https://github.com/ryanafdahl/openpilot.git refs/heads/nrdr-jetstream | cut -f1)" = 9abb37bf7e5b29e08566c077e7a319fa11b51b52
+          test "$(git ls-remote --heads https://github.com/ryanafdahl/openpilot.git refs/heads/nrdr-jetstream | cut -f1)" = 87e530f8914949b28e1fa00933b3297b7d0ee346
           curl --fail --location --retry 3 --user-agent 'AGNOSSetup-19.7' -H 'X-openpilot-device-type: mici' https://installer.comma.ai/ryanafdahl/nrdr-jetstream -o /tmp/comma-installer
           python3 - <<'PY'
           import hashlib

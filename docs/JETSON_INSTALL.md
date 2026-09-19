@@ -18,7 +18,7 @@ No SSH, long URL, separate staging build, or rollback step is required.
 
 The new `nrdr-jetstream` install branch and legacy `nrdr-jetson`, `nrdr-OP-jetson-trt` / `nrdr-op-jetson-trt` branches point to the same candidate. Use `ryanafdahl/nrdr-jetstream` for new installations. A misspelled or nonexistent branch can misleadingly produce “incompatible openpilot version”; that message alone does not prove an OS mismatch.
 
-Comma's setup screen expands `username/branch` to its compiled fork installer. This entry installs branch `nrdr-jetstream` from [ryanafdahl/openpilot](https://github.com/ryanafdahl/openpilot/tree/nrdr-jetstream). That branch publishes the candidate from this development repository; it currently points to `9abb37bf7e5b29e08566c077e7a319fa11b51b52`. It does not automatically track new development commits.
+Comma's setup screen expands `username/branch` to its compiled fork installer. This entry installs branch `nrdr-jetstream` from [ryanafdahl/openpilot](https://github.com/ryanafdahl/openpilot/tree/nrdr-jetstream). That branch publishes the candidate from this development repository; it currently points to `87e530f8914949b28e1fa00933b3297b7d0ee346`. It does not automatically track new development commits.
 
 The equivalent full URL is:
 
