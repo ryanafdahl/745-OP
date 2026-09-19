@@ -2,7 +2,7 @@
 
 Experimental Jetson acceleration port for **comma 4**, based on NRDR's `nrdr-clean` source. Jetlink connects the comma-side model pipeline to a separately configured NVIDIA Jetson running TensorRT. The native model path remains available as the fallback.
 
-**Current status:** a short installation entry is available through comma's standard fork installer. Source audits and portable tests pass. On September 19, 2026, the user reported successful first-boot compilation and startup on comma 4. USB connectivity, TensorRT inference, and vehicle behavior still require hardware testing. This is not a precompiled image or a road-qualified release.
+**Current status:** a short installation entry is available through comma's standard fork installer. Source audits and portable tests pass. On September 19, 2026, the user reported successful first-boot compilation and startup on comma 4. A subsequent parked SSH check confirmed USB Jetlink inference with the large model active. Sustained reliability, offline cold-start behavior, reconnect/fallback, and vehicle operation remain unqualified. This is not a precompiled image or a road-qualified release.
 
 ## Repository and release layout
 
@@ -83,7 +83,7 @@ Include the log, on-screen error, installed commit, AGNOS version, and Jetson mo
 
 - Fixed the first-boot `FileNotFoundError` in `modeld/SConscript`: the prebuilt NRDR base had stripped `driving_supercombo.onnx`.
 - Restored the 60,881,999-byte model from NRDR source revision `30485aaab876e0a66776eddfd652444f1801ceca`, verified against its published SHA-256, and stored it in two Git-friendly chunks.
-- Added mandatory input-integrity validation and regression tests; 69 tests passed twice. The user subsequently reported successful compilation and boot on comma 4; live Jetson inference remains unverified.
+- Added mandatory input-integrity validation and regression tests; 69 tests passed twice. The user subsequently reported successful compilation and boot on comma 4; a later parked check confirmed live Jetson inference (see validation status).
 - Published the fix to both install-name variants. Reinstall with the same lowercase short entry to receive it.
 
 ### 2026-09-19 — Short-name factory-reset installation
@@ -128,7 +128,11 @@ The audit checks provenance, selected protected NRDR subtree equality, parameter
 
 User-reported hardware milestone (September 19, 2026): installation proceeded to compilation, completed, and booted on comma 4 after restoring the native model input. This is a user observation, not a collected build-log or inference qualification.
 
-Still unverified on hardware: USB enumeration, live model outputs and timing, reconnect/fallback behavior, and vehicle operation.
+Verified parked observation (September 19, 2026, approximately 19:54 UTC): installed candidate `b6756fe80c3df2e0bbfde3c512d29e02cf1127b5` connected to an Orin running TensorRT 10.3.0. Logs identify BMRLNAP Model v4 (August 30, 2026), model hash prefix `a086d5249fc308bb`, and report the large model joining. An eight-second live subscription received 160 model messages, all with `modelV2.big=true`; model, car, and selfdrive messages were alive and valid. The latest sample showed 0 m/s, controls disabled, and no displayed alert. Initial server GPU time was about 19.2 ms; this is not a sustained latency benchmark.
+
+The Jetson separately loaded its cached engine at desk startup; build metadata recorded 155.7 seconds. The user reported moving it to the car without internet, but network isolation and a fully offline cold start of both devices were not independently verified. Earlier USB and DNS errors remain relevant to reconnect testing.
+
+Still unverified on hardware: sustained model timing and output quality, fully offline cold starts, reconnect/fallback behavior, and vehicle operation.
 
 ## Documentation and development
 
