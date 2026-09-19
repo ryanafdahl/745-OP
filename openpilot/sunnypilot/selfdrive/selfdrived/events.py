@@ -5,6 +5,7 @@ This file is part of sunnypilot and is licensed under the MIT License.
 See the LICENSE.md file in the root directory for more details.
 """
 import openpilot.cereal.messaging as messaging
+from openpilot.selfdrive.selfdrived.events import soft_disable_alert
 from openpilot.cereal import log, custom
 from opendbc.car.structs import car
 from openpilot.common.constants import CV
@@ -252,6 +253,19 @@ EVENTS_SP: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "",
       AlertStatus.userPrompt, AlertSize.small,
       Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 0.1),
+  },
+
+  EventNameSP.bigModelAvailable: {
+    ET.PERMANENT: Alert(
+      "Big Model Available",
+      "Stop with cruise off,\nor turn lateral off",
+      AlertStatus.normal, AlertSize.mid,
+      Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 3.),
+  },
+
+  EventNameSP.bigModelLinkLost: {
+    ET.SOFT_DISABLE: soft_disable_alert("Big Model Lost"),
+    ET.PERMANENT: NormalPermanentAlert("Big Model Lost", "Small model is driving,\nreconnecting if it comes back", duration=20.),
   },
 
   EventNameSP.bigModelReady: {

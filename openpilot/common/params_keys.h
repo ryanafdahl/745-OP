@@ -167,6 +167,15 @@ inline static std::unordered_map<std::string, ParamKeyAttributes> keys = {
     {"ChestnutActive", {CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION | CLEAR_ON_IGNITION_ON, BOOL}},
     {"ChestnutLoading", {CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION | CLEAR_ON_IGNITION_ON, BOOL}},
     {"ChestnutModelError", {CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION | CLEAR_ON_IGNITION_ON, BOOL}},
+    {"JetlinkEnabled", {PERSISTENT | BACKUP, BOOL}},
+    {"JetlinkEndpoint", {PERSISTENT | BACKUP, STRING}},
+    {"JetlinkModel", {PERSISTENT | BACKUP, STRING}},  // legacy: the pick is ModelManager_ActiveBundleChestnut; read once to migrate
+    {"JetlinkEngineReady", {PERSISTENT, STRING}},
+    {"JetlinkSpec", {PERSISTENT, JSON}},
+    {"JetlinkCachedModels", {PERSISTENT, JSON}},
+    {"JetlinkModelPointers", {PERSISTENT, JSON}},
+    {"AcceleratorProgress", {CLEAR_ON_MANAGER_START, JSON}},
+    {"Offroad_AcceleratorUnavailable", {CLEAR_ON_MANAGER_START, JSON}},
     {"Version", {PERSISTENT, STRING}},
 
     // --- sunnypilot params --- //

@@ -1,0 +1,3 @@
+[submodule "jetlink"]
+  path = jetlink_repo
+  url = https://github.com/zoompilot/jetlink.git

@@ -1,0 +1,760 @@
+name: Bootstrap Jetson TRT
+
+on:
+  push:
+    branches: [jetson-trt]
+    paths: [.github/workflows/bootstrap-jetson-trt.yml]
+
+permissions:
+  contents: write
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout destination
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Import nrdr-clean and port Jetlink/TensorRT
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if git log -1 --pretty=%B | grep -q "\[jetson-trt-integrated\]"; then
+            echo "Already integrated; skipping recursive workflow run."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          rm -rf /tmp/nrdr /tmp/zoom
+          git clone --filter=blob:none --no-checkout https://github.com/nrdr/openpilot.git /tmp/nrdr
+          git -C /tmp/nrdr fetch --no-tags origin nrdr-clean
+          git -C /tmp/nrdr checkout --detach "$(git -C /tmp/nrdr rev-parse FETCH_HEAD)"
+
+          git clone --branch jetson-trt --single-branch https://github.com/zoompilot/zoompilot.git /tmp/zoom
+          git -C /tmp/zoom checkout --detach bcb49d740eb7f7181c2c4aba6de5177b03f88ba3
+
+          NRDR_SHA=$(git -C /tmp/nrdr rev-parse HEAD)
+          ZOOM_SHA=$(git -C /tmp/zoom rev-parse HEAD)
+
+          # Preserve this workflow across the reset so the finished branch keeps
+          # a reproducible/manual Jetlink integration tool.
+          cp .github/workflows/bootstrap-jetson-trt.yml /tmp/bootstrap-jetson-trt.yml
+
+          # Start from a clean nrdr-clean tree. Do not overwrite existing nrdr
+          # integration files with their final Zoompilot versions.
+          cd "$GITHUB_WORKSPACE"
+          git remote add nrdr https://github.com/nrdr/openpilot.git || true
+          git fetch nrdr nrdr-clean
+          git reset --hard "$NRDR_SHA"
+
+          # Restore the workflow that the reset removed.
+          mkdir -p .github/workflows
+          cp /tmp/bootstrap-jetson-trt.yml .github/workflows/bootstrap-jetson-trt.yml
+
+          # Import files directly from the checked-out Zoompilot tree. The Zoom
+          # commit is not an object in this destination repository, so using
+          # "git checkout \"$ZOOM_SHA\"" here would address the wrong object database.
+          for path in \
+            openpilot/sunnypilot/accelerators \
+            openpilot/selfdrive/ui/sunnypilot/accelerator_link.py \
+            openpilot/selfdrive/selfdrived/tests/test_big_model_ready.py \
+            openpilot/selfdrive/ui/tests/test_accelerator_ui.py \
+            openpilot/sunnypilot/selfdrive/selfdrived/accelerator_events.py \
+            openpilot/sunnypilot/selfdrive/selfdrived/tests/test_accelerator_events.py \
+            openpilot/sunnypilot/selfdrive/selfdrived/tests/test_big_model_availability.py \
+            tools/jetlink_bench.py \
+            tools/jetlink_live_bench.sh \
+            tools/jetlink_replay.py; do
+            mkdir -p "$GITHUB_WORKSPACE/$(dirname "$path")"
+            cp -a "/tmp/zoom/$path" "$GITHUB_WORKSPACE/$path"
+          done
+
+          # Preserve Zoompilot's exact Jetlink gitlink revision.
+          JETLINK_SHA=$(git -C /tmp/zoom ls-tree "$ZOOM_SHA" -- jetlink_repo | awk '{print $3}')
+          test -n "$JETLINK_SHA"
+          git update-index --add --cacheinfo 160000,"$JETLINK_SHA",jetlink_repo
+          mkdir -p jetlink_repo
+
+          # nrdr-clean has no .gitmodules. Add only the Jetlink submodule.
+          printf '%s\n' '[submodule "jetlink"]' '  path = jetlink_repo' '  url = https://github.com/zoompilot/jetlink.git' > .gitmodules
+
+          # Apply the reviewed accelerator port; do not replay superseded history.
+          python3 - <<'PY'
+          from pathlib import Path
+          import ast
+          import re
+          
+          p = Path("openpilot/common/params_keys.h")
+          s = p.read_text()
+          source = Path("/tmp/zoom/openpilot/common/params_keys.h").read_text()
+          keys = ["JetlinkEnabled","JetlinkEndpoint","JetlinkModel","JetlinkEngineReady","JetlinkSpec","JetlinkCachedModels","JetlinkModelPointers","AcceleratorProgress","Offroad_AcceleratorUnavailable"]
+          marker = '    {"Version", {PERSISTENT, STRING}},'
+          assert s.count(marker) == 1, "NRDR params registry anchor changed"
+          for key in keys:
+              matches = [line for line in source.splitlines() if re.match(r'\s*\{"' + key + r'"\s*,', line)]
+              assert len(matches) == 1, f"Missing or duplicate upstream parameter: {key}"
+              if not re.search(r'\{"' + key + r'"\s*,', s):
+                  s = s.replace(marker, matches[0] + "\n" + marker)
+              assert len(re.findall(r'\{"' + key + r'"\s*,', s)) == 1, key
+          p.write_text(s)
+          
+          # Apply the final accelerator API to NRDR's current modeld once. Replaying
+          # superseded Jetlink startup implementations conflicts with native readiness.
+          p = Path("openpilot/selfdrive/modeld/modeld.py")
+          s = p.read_text()
+          replacements = [
+            [
+              "from openpilot.sunnypilot.livedelay.helpers import get_lat_delay",
+              "from openpilot.sunnypilot import accelerators\nfrom openpilot.sunnypilot.livedelay.helpers import get_lat_delay"
+            ],
+            [
+              "  config_realtime_process(7, 54)",
+              "  # Prepare the accelerator before modeld enters the realtime scheduling class.\n  JETLINK = not CHESTNUT and accelerators.enabled() and accelerators.prepare()\n\n  config_realtime_process(7, 54)"
+            ],
+            [
+              "  small_model = ModelState(vipc_client_main.width, vipc_client_main.height, False) if model is None or CHESTNUT else None",
+              "  elif JETLINK:\n    small_model = ModelState(vipc_client_main.width, vipc_client_main.height, False)\n    try:\n      model = accelerators.make_model_state(vipc_client_main.width, vipc_client_main.height, small_model)\n    except Exception:\n      cloudlog.exception(\"jetlink load failed\")\n      model = None\n\n  if not JETLINK:\n    small_model = ModelState(vipc_client_main.width, vipc_client_main.height, False) if model is None or CHESTNUT else None"
+            ],
+            [
+              "  chestnut_state = ChestnutState(pm, model.chestnut) if CHESTNUT else None",
+              "  chestnut_state = ChestnutState(pm, model.chestnut) if CHESTNUT else None\n  if JETLINK:\n    chestnut_state = accelerators.make_status_publisher(pm, model)"
+            ],
+            [
+              "    except Exception:\n      if not params.get_bool(\"ChestnutActive\"):",
+              "    except Exception:\n      # The joining state owns its fallback and link cleanup.\n      if JETLINK:\n        raise\n      if not params.get_bool(\"ChestnutActive\"):"
+            ],
+            [
+              "      set_lateral_action_timing(modelv2_send, mdv2sp_send, lat_action_t)",
+              "      set_lateral_action_timing(modelv2_send, mdv2sp_send, lat_action_t)\n      mdv2sp_send.modelDataV2SP.bigModelAvailable = getattr(model, 'big_model_available', False)\n      mdv2sp_send.modelDataV2SP.acceleratorState = getattr(model, 'big_model_state', 'none')\n      mdv2sp_send.modelDataV2SP.acceleratorName = 'jetlink' if JETLINK else ''"
+            ]
+          ]
+          for old, new in replacements:
+              assert s.count(old) == 1, f"NRDR modeld anchor changed: {old}"
+              s = s.replace(old, new)
+          ast.parse(s)
+          p.write_text(s)
+          
+          # Keep NRDR's native hardware readiness logic and add only pkl validation.
+          p = Path("openpilot/selfdrive/modeld/helpers.py")
+          s = p.read_text()
+          marker = "def chestnut_present() -> bool:"
+          assert s.count(marker) == 1
+          s = s.replace(marker, "# the top level of the pkl compile_modeld.py writes. checked at both ends: a pkl from another\n# compile_modeld.py unpickles fine and only fails on the first key it lacks, as a bare KeyError\nMODELD_PKL_KEYS = ('metadata', 'input_devices', 'run_model')\n\ndef check_modeld_pkl(jits: dict, path) -> None:\n  missing = [k for k in MODELD_PKL_KEYS if k not in jits]\n  if missing:\n    raise RuntimeError(f\"{path} is missing {missing}: it was compiled by a different compile_modeld.py than this modeld, rebuild it\")\n\n# every warp jit is compiled for one driver camera resolution and keyed by it, so a prebuilt cut\n# on a device with a different camera carries none for this one. Without this the mismatch\n# surfaces as a bare FileNotFoundError or KeyError inside ModelState.__init__ and the process\n# just stops. See PREBUILT_ALL_CAMERAS in modeld/SConscript\ndef _camera_mismatch(cam_w: int, cam_h: int, compiled: str, path) -> RuntimeError:\n  have = f\"{path} has only [{compiled or 'none'}]\"\n  return RuntimeError(f\"no jit for this device's {cam_w}x{cam_h} driver camera: {have}. This build was compiled for another device\")\n\ndef dm_warp_path(cam_w: int, cam_h: int):\n  path = MODELS_DIR / f'dm_warp_{cam_w}x{cam_h}_tinygrad.pkl'\n  if not path.is_file():\n    compiled = ', '.join(sorted(p.name.split('_')[2] for p in MODELS_DIR.glob('dm_warp_*_tinygrad.pkl')))\n    raise _camera_mismatch(cam_w, cam_h, compiled, MODELS_DIR)\n  return path\n\ndef check_camera_jit(jits: dict, cam_w: int, cam_h: int, path) -> None:\n  if (cam_w, cam_h) not in jits:\n    compiled = ', '.join(f'{w}x{h}' for w, h in sorted(k for k in jits if isinstance(k, tuple)))\n    raise _camera_mismatch(cam_w, cam_h, compiled, path)\n\n" + marker)
+          ast.parse(s)
+          p.write_text(s)
+          
+          # Reviewed net changes against the pinned NRDR base. Every input blob must
+          # match before applying offsets; upstream movement cannot silently misapply a patch.
+          import json
+          import subprocess
+          patches = {
+            "launch_chffrplus.sh": {
+              "sha": "e60c915e07ee2ce6483cc6bc61ed3e49064ad393",
+              "changes": [
+                {
+                  "start": 3316,
+                  "old": "",
+                  "new": "  ln -sfn jetlink_repo/jetlink jetlink\n  # accelerator backends: USB gadgets, symlinks, anything needing root at boot\n  ./openpilot/sunnypilot/accelerators/setup.sh\n"
+                }
+              ]
+            },
+            "openpilot/cereal/custom.capnp": {
+              "sha": "774fe847ff60032563485ea974e0205241c3b59e",
+              "changes": [
+                {
+                  "start": 10637,
+                  "old": "  # Optional identity/timing metadata for joining this extension to modelV2.\n  # Scalar zero is the unavailable value when reading messages from older builds.\n  modelMonoTime @3 :UInt64;       # Exact logMonoTime of the corresponding modelV2 event.\n  lateralActionTime @4 :Float32;  # Seconds from the source vision frame to the lateral action target.\n",
+                  "new": "  # Optional identity/timing metadata for joining this extension to modelV2.\n  # Scalar zero is the unavailable value when reading messages from older builds.\n  modelMonoTime @3 :UInt64;       # Exact logMonoTime of the corresponding modelV2 event.\n  lateralActionTime @4 :Float32;  # Seconds from the source vision frame to the lateral action target.\n\n  # A late-loading big model is connected and waiting for disengagement.\n  # This is availability, not proof of inference; modelV2.big reports execution.\n  # Startup-only runners and older logs leave this false.\n  bigModelAvailable @5 :Bool;\n\n  # Runtime state of an off-board accelerator (sunnypilot/accelerators). Offroad\n  # progress stays in the AcceleratorProgress param; telemetry waits for a customReserved slot.\n  acceleratorState @6 :AcceleratorState;\n  acceleratorName @7 :Text;\n\n  enum AcceleratorState {\n    none @0;\n    joining @1;\n    running @2;\n    retrying @3;\n    unavailable @4;\n    ready @5;      # link up, engine loaded, waiting for a window to switch\n  }\n"
+                },
+                {
+                  "start": 8228,
+                  "old": "",
+                  "new": "    bigModelAvailable @26;\n    bigModelLinkLost @27;\n"
+                }
+              ]
+            },
+            "openpilot/selfdrive/selfdrived/alerts_offroad.json": {
+              "sha": "b3b5077823e2f9504945a3ce19eb11d82601527c",
+              "changes": [
+                {
+                  "start": 1693,
+                  "old": "",
+                  "new": "  \"Offroad_AcceleratorUnavailable\": {\n    \"text\": \"Model accelerator unavailable: %1\",\n    \"severity\": 0\n  },\n"
+                }
+              ]
+            },
+            "openpilot/selfdrive/selfdrived/events.py": {
+              "sha": "cabe676b8ae12351f175eba1885bb4dc10adfc56",
+              "changes": [
+                {
+                  "start": 11001,
+                  "old": "    ET.PERMANENT: NormalPermanentAlert(\"Big Model Failed \", \"Restart the car to retry,\\nsmall model is still available\", duration=20.),\n",
+                  "new": "    # no \"restart the car to retry\": an accelerator on its own power reconnects\n    # mid-drive, and this fires beside bigModelLinkLost, which says so\n    ET.PERMANENT: NormalPermanentAlert(\"Big Model Failed \", \"Small model is still available\", duration=20.),\n"
+                }
+              ]
+            },
+            "openpilot/selfdrive/selfdrived/selfdrived.py": {
+              "sha": "79aa1e7f82b8226462f49bc4219ab54411da9263",
+              "changes": [
+                {
+                  "start": 9715,
+                  "old": "",
+                  "new": "    self.accelerator_events.update(self.sm, self.enabled, CS.standstill, self.events, self.events_sp)\n"
+                },
+                {
+                  "start": 9067,
+                  "old": "",
+                  "new": "\n    # ChestnutLoading also clears after a failed load, so only modelV2.big means the big model is up\n    running_big = self.sm.alive['modelV2'] and self.sm.valid['modelV2'] and self.sm['modelV2'].big\n    if running_big and not self.big_model_running:\n      self.events_sp.add(custom.OnroadEventSP.EventName.bigModelReady)\n    self.big_model_running = running_big\n"
+                },
+                {
+                  "start": 8879,
+                  "old": "      self.events_sp.add(custom.OnroadEventSP.EventName.bigModelReady)\n",
+                  "new": ""
+                },
+                {
+                  "start": 3758,
+                  "old": "",
+                  "new": "    self.accelerator_events = AcceleratorEvents()\n"
+                },
+                {
+                  "start": 3726,
+                  "old": "",
+                  "new": "    self.big_model_running = False\n"
+                },
+                {
+                  "start": 1800,
+                  "old": "",
+                  "new": "from openpilot.sunnypilot.selfdrive.selfdrived.accelerator_events import AcceleratorEvents\n"
+                }
+              ]
+            },
+            "openpilot/selfdrive/ui/sunnypilot/layouts/settings/models.py": {
+              "sha": "65005fd4e943a89e371d472e660fb2e01153e4f9",
+              "changes": [
+                {
+                  "start": 18071,
+                  "old": "",
+                  "new": "    self.accelerator_link_item.action_item.set_enabled(offroad)\n"
+                },
+                {
+                  "start": 11748,
+                  "old": "",
+                  "new": "    if state == 'ready':\n      # the swap window, not the model, is what is missing now\n      return tr(\"{} is ready. Stop with cruise off, or turn lateral off, to switch.\").format(big_name)\n    if accelerator and not ui_state.accelerator_view.ready:\n      return tr(\"{} will drive when the accelerator is ready.\").format(big_name)\n"
+                },
+                {
+                  "start": 11349,
+                  "old": "",
+                  "new": "    if accelerator:\n      # named by the accelerator: the slot's pick, or its default, which can be\n      # newer than the chestnut's. The small model the user picked drives in\n      # its place, so it reads like a Default big\n      big_name = accelerators.selected_model_name() or tr(\"The big model\")\n      big_is_default = True\n      if small := get_selected_bundle(ui_state.params, \"qcom\"):\n        fallback_name = small.internalName\n    else:\n      big_bundle = get_selected_bundle(ui_state.params, \"chestnut\")\n      big_name = big_bundle.internalName if big_bundle else default_model_name(\"chestnut\")\n      big_is_default = big_bundle is None\n"
+                },
+                {
+                  "start": 11077,
+                  "old": "    big_bundle = get_selected_bundle(ui_state.params, \"chestnut\")\n    big_name = big_bundle.internalName if big_bundle else default_model_name(\"chestnut\")\n    big_is_default = big_bundle is None\n",
+                  "new": ""
+                },
+                {
+                  "start": 11023,
+                  "old": "    if not ui_state.chestnut_present:\n",
+                  "new": "    accelerator = ui_state.accelerator_view is not None\n    if not (ui_state.chestnut_present or accelerator):\n"
+                },
+                {
+                  "start": 8272,
+                  "old": "",
+                  "new": "      self._refresh_accelerator_items()\n"
+                },
+                {
+                  "start": 6339,
+                  "old": "",
+                  "new": "    self._refresh_accelerator_items()\n\n  def _set_link_state(self, enabled: bool):\n    if not ui_state.is_offroad():\n      self.accelerator_link_item.action_item.set_state(link_enabled())\n      return\n    set_link_enabled(enabled)\n\n  @staticmethod\n  def _link_description(status: str) -> str:\n    return f\"{tr('Run the big driving model on an attached accelerator.')} {status}\".strip()\n\n  def _refresh_accelerator_items(self):\n    # present() and unavailable_reason() read sysfs, so this rides the half-second tick\n    self.accelerator_link_item.set_visible(link_toggle_meaningful())\n    self.accelerator_link_item.action_item.set_state(link_enabled())\n    status = link_status()\n    if status != self._link_status:\n      self._link_status = status\n      self.accelerator_link_item.set_description(self._link_description(status))\n"
+                },
+                {
+                  "start": 6052,
+                  "old": "    self.items = [self.small_model_item, self.big_model_item, self.cancel_download_item, self.download_item, self.refresh_item, self.clear_cache_item,\n",
+                  "new": "    self.items = [self.small_model_item, self.big_model_item, self.accelerator_link_item, self.cancel_download_item,\n                  self.download_item, self.refresh_item, self.clear_cache_item,\n"
+                },
+                {
+                  "start": 2848,
+                  "old": "",
+                  "new": "\n    # not a param-bound toggle: the write is refused onroad, so it goes through\n    # accelerator_link by hand\n    self.accelerator_link_item = toggle_item_sp(\n      tr(\"Accelerator Link\"),\n      self._link_description(\"\"),\n      initial_state=link_enabled(), callback=self._set_link_state)\n"
+                },
+                {
+                  "start": 1939,
+                  "old": "",
+                  "new": "    self._link_status = None\n"
+                },
+                {
+                  "start": 527,
+                  "old": "",
+                  "new": "from openpilot.selfdrive.ui.sunnypilot.accelerator_link import link_enabled, link_status, link_toggle_meaningful, set_link_enabled\nfrom openpilot.sunnypilot import accelerators\n"
+                }
+              ]
+            },
+            "openpilot/selfdrive/ui/sunnypilot/mici/layouts/models.py": {
+              "sha": "4c769498f5d4db4ac5b8123af453c8597fb84c31",
+              "changes": [
+                {
+                  "start": 8279,
+                  "old": "",
+                  "new": "      # present() and unavailable_reason() read sysfs, so they ride this half-second tick\n      self.link_toggle.refresh()\n      self.link_toggle.set_visible(link_toggle_meaningful())\n"
+                },
+                {
+                  "start": 3940,
+                  "old": "    self.main_items = [self.current_model_info, self.select_model_btn, self.cancel_download_btn]\n",
+                  "new": "    self.link_toggle = AcceleratorLinkToggle()\n    self.link_toggle.set_visible(link_toggle_meaningful())\n\n    self.main_items = [self.current_model_info, self.select_model_btn, self.cancel_download_btn, self.link_toggle]\n"
+                },
+                {
+                  "start": 1634,
+                  "old": "",
+                  "new": "  provisioning = big_model_progress()\n  if provisioning is not None:\n    stage, frac, msg = provisioning\n    if stage == 'failed':\n      return active_text, tr(\"big model\"), tr(\"unavailable\")\n    # \"waiting for the jetson\" says more than \"connect 0%\"; no percentage for a stage\n    # with nothing to measure\n    detail = tr(msg) if msg else tr(stage)\n    return active_text, tr(\"big model\"), f\"{detail} {frac * 100:.0f}%\" if frac > 0 else detail\n"
+                },
+                {
+                  "start": 1074,
+                  "old": "",
+                  "new": "\n\nclass AcceleratorLinkToggle(BigToggle):\n  \"\"\"not BigParamControl: the write is refused onroad\"\"\"\n\n  def __init__(self):\n    super().__init__(tr(\"accelerator link\"), initial_state=link_enabled(), toggle_callback=self._store)\n\n  def _store(self, checked: bool) -> None:\n    if not ui_state.is_offroad():\n      self.set_checked(link_enabled())\n      return\n    set_link_enabled(checked)\n\n  def refresh(self) -> None:\n    self.set_checked(link_enabled())\n    status = link_status().rstrip('.').lower()\n    if status != self.get_value():\n      self.set_value(status)\n\n"
+                },
+                {
+                  "start": 560,
+                  "old": "from openpilot.selfdrive.ui.sunnypilot.model_info import (active_source, big_model_state, bundles_for_source, carrying_model,\n                                                           default_model_name, model_info, queued_name)\n",
+                  "new": "from openpilot.selfdrive.ui.sunnypilot.accelerator_link import link_enabled, link_status, link_toggle_meaningful, set_link_enabled\nfrom openpilot.selfdrive.ui.sunnypilot.model_info import (active_source, big_model_progress, big_model_state,\n                                                          bundles_for_source, carrying_model,\n                                                          default_model_name, model_info, queued_name)\n"
+                },
+                {
+                  "start": 434,
+                  "old": "from openpilot.selfdrive.ui.mici.widgets.button import BigButton\n",
+                  "new": "from openpilot.selfdrive.ui.mici.widgets.button import BigButton, BigToggle\n"
+                }
+              ]
+            },
+            "openpilot/selfdrive/ui/sunnypilot/model_info.py": {
+              "sha": "e338feb9ed651893059a44e55f593051f35e4366",
+              "changes": [
+                {
+                  "start": 3186,
+                  "old": "  active_bundle = get_selected_bundle(ui_state.params, source)\n  other_bundle = get_selected_bundle(ui_state.params, other)\n",
+                  "new": "  active_bundle = slot_bundle(source)\n  other_bundle = slot_bundle(other)\n"
+                },
+                {
+                  "start": 2809,
+                  "old": "",
+                  "new": "def slot_bundle(source: str):\n  return get_selected_bundle(ui_state.params, source)\n\n\n"
+                },
+                {
+                  "start": 1803,
+                  "old": "",
+                  "new": "  # only when no board is fitted does the chestnut state describe the jetlink view\n  if not ui_state.chestnut_present and ui_state.chestnut_state == ChestnutState.ACTIVE:\n    name = accelerators.active_model_name()\n    if name is not None:\n      return 'accelerator', name, name\n"
+                },
+                {
+                  "start": 1405,
+                  "old": "          ChestnutState.LOADING: 'loading'}.get(ui_state.chestnut_state)\n",
+                  "new": "          ChestnutState.LOADING: 'loading',\n          ChestnutState.WAITING: 'ready'}.get(ui_state.chestnut_state)\n\n\ndef big_model_progress() -> tuple[str, float, str] | None:\n  \"\"\"(stage, 0..1, message) while an accelerator is working, else None. The message\n  is carried because a stage like \"waiting for the jetson\" has no meaningful fraction\"\"\"\n  progress = getattr(ui_state, 'accelerator_progress', None)\n  if not progress:\n    return None\n  stage = str(progress.get('stage', ''))\n  if stage in ('', 'ready'):\n    return None\n  return stage, float(progress.get('frac', 0.0)), str(progress.get('msg', ''))\n"
+                },
+                {
+                  "start": 1242,
+                  "old": "  \"\"\"'failed' | 'loading' | None, from the same state the icons render.\"\"\"\n",
+                  "new": "  \"\"\"'failed' | 'loading' | 'ready' | None, from the same state the icons render.\"\"\"\n"
+                },
+                {
+                  "start": 293,
+                  "old": "",
+                  "new": "from openpilot.sunnypilot import accelerators\n"
+                }
+              ]
+            },
+            "openpilot/selfdrive/ui/sunnypilot/ui_state.py": {
+              "sha": "ef622376fb77c7d42e70ab65a5f02113fbfa19a3",
+              "changes": [
+                {
+                  "start": 6227,
+                  "old": "",
+                  "new": "    # a fitted chestnut owns chestnut_state; the view exists only when there is something to show\n    view = None\n    if not self.sm['deviceState'].chestnutPresent:\n      present, ready = accelerators.present(), accelerators.ready()\n      if present or ready or self.accelerator_progress is not None or link_enabled:\n        view = AcceleratorView(present, ready, self.accelerator_progress, self._accelerator_state_name)\n    self.accelerator_view = view\n    # the Jetson configures the gadget ~25 s after a cold boot, after the one-shot\n    # usb_unknown decision; recognising it late still clears \"unknown\"\n    if view is not None and view.present and self.usb_unknown:\n      self.usb_unknown = False\n"
+                },
+                {
+                  "start": 5968,
+                  "old": "    # stock only counts the default big model's compiled pkl. a downloaded big bundle runs on the\n    # chestnut just the same, so ChestnutState has to see it as available too.\n",
+                  "new": "    # read on the 5 Hz params pass, not per frame in a layout\n    self.accelerator_progress = accelerators.progress()\n    link_enabled = accelerators.enabled()\n"
+                },
+                {
+                  "start": 2660,
+                  "old": "",
+                  "new": "    # read where sm is updated, so the params thread never touches a message\n    self._accelerator_state_name = str(self.sm['modelDataV2SP'].acceleratorState)\n\n  def _accelerator_state(self):\n    \"\"\"ChestnutState for the accelerator view: progress param offroad, modelV2 and acceleratorState onroad\"\"\"\n    from openpilot.selfdrive.ui.ui_state import ChestnutState  # defined by the class that mixes this in\n    view = self.accelerator_view\n    if not self.started:\n      stage = str((view.progress or {}).get('stage', ''))\n      if not view.present:\n        return ChestnutState.DISCONNECTED\n      if stage and stage != 'ready':\n        return ChestnutState.FAILED if stage == 'failed' else ChestnutState.LOADING\n      return ChestnutState.READY if view.ready else ChestnutState.UNCOMPILED\n\n    model_seen = self.sm.recv_frame[\"modelV2\"] > self.started_frame\n    if model_seen and self.sm.alive[\"modelV2\"] and self.sm[\"modelV2\"].big:\n      return ChestnutState.ACTIVE\n    if not view.present:\n      return ChestnutState.DISCONNECTED\n    # attached, a pending join is loading, not a failed model\n    if view.state in ('joining', 'retrying') or not model_seen:\n      return ChestnutState.LOADING\n    # the engine is up and only the swap window is missing, which on a MADS car\n    # is the rest of the drive unless the driver stops\n    if view.state == 'ready':\n      return ChestnutState.WAITING\n    if not view.ready:\n      return ChestnutState.UNCOMPILED\n    if view.state == 'running':\n      return ChestnutState.ACTIVE\n    return ChestnutState.FAILED\n"
+                },
+                {
+                  "start": 1784,
+                  "old": "",
+                  "new": "    self.accelerator_view: AcceleratorView | None = None\n    self.accelerator_progress: dict | None = None\n    self._accelerator_state_name: str = 'none'\n"
+                },
+                {
+                  "start": 1423,
+                  "old": "      \"gpsLocation\", \"lateralTorqueParameters\", \"carStateSP\", \"laneCenteringStateSP\", \"liveMapDataSP\", \"carParamsSP\", \"lateralDelay\"\n",
+                  "new": "      \"gpsLocation\", \"lateralTorqueParameters\", \"carStateSP\", \"laneCenteringStateSP\", \"liveMapDataSP\", \"carParamsSP\", \"lateralDelay\",\n      \"modelDataV2SP\"\n"
+                },
+                {
+                  "start": 1089,
+                  "old": "",
+                  "new": "class AcceleratorView(NamedTuple):\n  \"\"\"What the UI knows about an off-board accelerator, built on the params pass when no\n  chestnut is fitted. Presence comes from the backend: the comma is the gadget and enumerates nothing.\"\"\"\n  present: bool\n  ready: bool\n  progress: dict | None\n  state: str  # modelDataV2SP.acceleratorState, by enum name\n\n\n"
+                },
+                {
+                  "start": 379,
+                  "old": "",
+                  "new": "from openpilot.sunnypilot import accelerators\n"
+                },
+                {
+                  "start": 247,
+                  "old": "",
+                  "new": "from typing import NamedTuple\n"
+                }
+              ]
+            },
+            "openpilot/selfdrive/ui/ui_state.py": {
+              "sha": "a101f93d5736aeb3bf4e0bcc6034d4346a95f0a8",
+              "changes": [
+                {
+                  "start": 9971,
+                  "old": "        self.usb_unknown = not any(is_chestnut_usb_id(d[\"vendorId\"], d[\"productId\"], True) for d in get_usb_state())\n",
+                  "new": "        # the comma is the gadget for an off-board accelerator and enumerates nothing\n        self.usb_unknown = not (self.accelerator_view is not None or\n                                any(is_chestnut_usb_id(d[\"vendorId\"], d[\"productId\"], True) for d in get_usb_state()))\n"
+                },
+                {
+                  "start": 7574,
+                  "old": "",
+                  "new": "    if self.accelerator_view is not None:\n      self.chestnut_state = self._accelerator_state()\n      return\n\n"
+                },
+                {
+                  "start": 1228,
+                  "old": "",
+                  "new": "  # onroad, an off-board accelerator only: loaded and waiting for a window to\n  # switch. A board is loaded before the first modelV2 and never sees this\n  WAITING = \"waiting\"\n"
+                }
+              ]
+            },
+            "openpilot/sunnypilot/SConscript": {
+              "sha": "587deea5ff8e43069f1d9d3efd57a5ca201e9021",
+              "changes": [
+                {
+                  "start": 0,
+                  "old": "",
+                  "new": "SConscript(['accelerators/SConscript'])\n"
+                }
+              ]
+            },
+            "openpilot/sunnypilot/modeld_v2/modeld.py": {
+              "sha": "72b168903b5051e848a97370b3ea4dcb8509bb87",
+              "changes": [
+                {
+                  "start": 26252,
+                  "old": "\n    if chestnut_state is not None and run_count % round(model.constants.MODEL_FREQ / SERVICE_LIST['chestnutState'].frequency) == 0:\n      chestnut_state.send()\n",
+                  "new": ""
+                },
+                {
+                  "start": 24377,
+                  "old": "",
+                  "new": "      mdv2sp_send.modelDataV2SP.bigModelAvailable = getattr(model, 'big_model_available', False)\n      mdv2sp_send.modelDataV2SP.acceleratorState = getattr(model, 'big_model_state', 'none')\n      mdv2sp_send.modelDataV2SP.acceleratorName = 'jetlink' if JETLINK else ''\n"
+                },
+                {
+                  "start": 23807,
+                  "old": "",
+                  "new": "      params.put_bool(\"ChestnutModelError\", True)\n"
+                },
+                {
+                  "start": 23678,
+                  "old": "",
+                  "new": "      # the joining state does its own fallback; the handler below would orphan its threads and link\n      if JETLINK:\n        raise\n"
+                },
+                {
+                  "start": 23585,
+                  "old": "      model_output = model.run(bufs, transforms, inputs, prepare_only)\n",
+                  "new": "      send_chestnut = (chestnut_state is not None and\n                       run_count % round(model.constants.MODEL_FREQ / SERVICE_LIST['chestnutState'].frequency) == 0)\n      if JETLINK:\n        model_output = model.run(bufs, transforms, inputs, chestnut_state.send if send_chestnut else None)\n      else:\n        model_output = model.run(bufs, transforms, inputs, chestnut_state.send if send_chestnut else None,\n                                 prepare_only=vipc_dropped_frames > 0)\n"
+                },
+                {
+                  "start": 23419,
+                  "old": "    if 'action_t' in model.numpy_inputs:\n      inputs['action_t'] = np.array([lat_action_t, long_action_t], dtype=np.float32)\n\n",
+                  "new": ""
+                },
+                {
+                  "start": 23268,
+                  "old": "",
+                  "new": "      'action_t': np.array([lat_action_t, long_action_t], dtype=np.float32),\n"
+                },
+                {
+                  "start": 23147,
+                  "old": "",
+                  "new": "    # action_t for every model: run() takes what it has a slot for, and a large\n    # model joining mid-drive reads it from a frame built for the small one\n"
+                },
+                {
+                  "start": 22399,
+                  "old": "    prepare_only = vipc_dropped_frames > 0\n    if prepare_only:\n      cloudlog.error(f\"skipping model eval. Dropped {vipc_dropped_frames} frames\")\n",
+                  "new": ""
+                },
+                {
+                  "start": 20953,
+                  "old": "",
+                  "new": "    long_delay = CP.longitudinalActuatorDelay + model.LONG_SMOOTH_SECONDS\n"
+                },
+                {
+                  "start": 18973,
+                  "old": "  long_delay = CP.longitudinalActuatorDelay + model.LONG_SMOOTH_SECONDS\n",
+                  "new": ""
+                },
+                {
+                  "start": 18186,
+                  "old": "",
+                  "new": "  if JETLINK:\n    chestnut_state = accelerators.make_status_publisher(pm, model)\n"
+                },
+                {
+                  "start": 17416,
+                  "old": "  small_model = ModelState(cam_w=vipc_client_main.width, cam_h=vipc_client_main.height, chestnut=False) if model is None or CHESTNUT else None\n",
+                  "new": "  if not JETLINK:\n    small_model = ModelState(cam_w=vipc_client_main.width, cam_h=vipc_client_main.height, chestnut=False) if model is None or CHESTNUT else None\n"
+                },
+                {
+                  "start": 17415,
+                  "old": "",
+                  "new": "    if model is not None:\n      params.remove(\"ChestnutModelError\")\n  elif JETLINK:\n    small_model = ModelState(cam_w=vipc_client_main.width, cam_h=vipc_client_main.height, chestnut=False)\n    try:\n      model = accelerators.make_model_state(vipc_client_main.width, vipc_client_main.height, small_model)\n    except Exception:\n      cloudlog.exception(\"jetlink load failed\")\n      model = None\n"
+                },
+                {
+                  "start": 17358,
+                  "old": "",
+                  "new": "    if model is None:\n      params.put_bool(\"ChestnutModelError\", True)\n"
+                },
+                {
+                  "start": 15404,
+                  "old": "",
+                  "new": "  # before going realtime: prepare() starts tinygrad's device thread, which would inherit FIFO 54 on core 7\n  JETLINK = not CHESTNUT and accelerators.enabled() and accelerators.prepare()\n\n  config_realtime_process(7, 54)\n"
+                },
+                {
+                  "start": 15273,
+                  "old": "  config_realtime_process(7, 54)\n",
+                  "new": ""
+                },
+                {
+                  "start": 11653,
+                  "old": "    if self._combined_model_type == 'supercombo':\n      model_output = raw_outputs.numpy().flatten()",
+                  "new": "    if after_enqueue is not None:\n      after_enqueue()\n\n    if self._combined_model_type == 'supercombo':\n      model_output = raw_outputs.numpy().flatten()"
+                },
+                {
+                  "start": 9741,
+                  "old": "                inputs: dict[str, np.ndarray], prepare_only: bool) -> dict[str, np.ndarray] | None:",
+                  "new": "                inputs: dict[str, np.ndarray], after_enqueue: Callable[[], None] | None = None,\n                prepare_only: bool = False) -> dict[str, np.ndarray] | None:"
+                },
+                {
+                  "start": 2492,
+                  "old": "",
+                  "new": "from openpilot.sunnypilot import accelerators\n"
+                },
+                {
+                  "start": 249,
+                  "old": "",
+                  "new": "from collections.abc import Callable\n"
+                }
+              ]
+            },
+            "openpilot/sunnypilot/models/fetcher.py": {
+              "sha": "f997dbbc516b018f8b55be2d1eee7478a7df332f",
+              "changes": [
+                {
+                  "start": 5694,
+                  "old": "  MODEL_URL_CHESTNUT = \"https://raw.githubusercontent.com/sunnypilot/sunnypilot-models/refs/heads/gh-pages/docs/driving_models_chestnut_v23.json\"\n",
+                  "new": "  MODEL_URL_CHESTNUT = \"https://raw.githubusercontent.com/sunnypilot/sunnypilot-models/refs/heads/gh-pages/docs/driving_models_chestnut_v25.json\"\n"
+                },
+                {
+                  "start": 2255,
+                  "old": "",
+                  "new": "\n  @staticmethod\n  def _repair_chunk_manifest(artifact: custom.ModelManagerSP.Artifact) -> None:\n    \"\"\"Record the chunk count of an artifact already on disk. Every catalog parses each\n    tick and qcom and chestnut list the same file with different counts, so only the source\n    whose first chunk exists writes; a download writes its own manifest when it finishes.\"\"\"\n    from openpilot.common.file_chunker import get_chunk_name, get_manifest_path\n\n    try:\n      model_dir = Paths.model_root()\n      os.makedirs(model_dir, exist_ok=True)\n      base_path = os.path.join(model_dir, artifact.fileName)\n      num_chunks = len(artifact.chunks)\n\n      if not os.path.isfile(get_chunk_name(base_path, 0, num_chunks)):\n        return\n\n      manifest_path = get_manifest_path(base_path)\n      expected = str(num_chunks)\n      if os.path.isfile(manifest_path):\n        with open(manifest_path) as f:\n          if f.read().strip() == expected:\n            return\n\n      with open(manifest_path, \"w\") as f:\n        f.write(expected)\n      cloudlog.info(f\"Wrote chunk manifest for {artifact.fileName}: {expected} chunks\")\n    except Exception as e:\n      cloudlog.warning(f\"Failed to write chunk manifest for {artifact.fileName}: {e}\")\n"
+                },
+                {
+                  "start": 1616,
+                  "old": "      try:\n        model_dir = Paths.model_root()\n        os.makedirs(model_dir, exist_ok=True)\n        manifest_path = os.path.join(model_dir, f\"{artifact.fileName}.chunkmanifest\")\n        num_chunks = str(len(artifact.chunks))\n\n        if not os.path.exists(manifest_path) or open(manifest_path).read().strip() != num_chunks:\n          with open(manifest_path, \"w\") as f:\n            f.write(num_chunks)\n          cloudlog.info(f\"Wrote chunk manifest for {artifact.fileName}: {num_chunks} chunks\")\n      except Exception as e:\n        cloudlog.warning(f\"Failed to write chunk manifest for {artifact.fileName}: {e}\")\n",
+                  "new": "      ModelParser._repair_chunk_manifest(artifact)\n"
+                }
+              ]
+            },
+            "openpilot/sunnypilot/models/helpers.py": {
+              "sha": "ac69096597605c78fc8e86ea89fe19c5ead924be",
+              "changes": [
+                {
+                  "start": 6214,
+                  "old": "  if active_bundle is None or _bundle_needs_reset(active_bundle, available_bundles):\n",
+                  "new": "  if active_bundle is None or _bundle_needs_reset(active_bundle, available_bundles, check_files):\n"
+                },
+                {
+                  "start": 6002,
+                  "old": "",
+                  "new": "  # the big-model slot's missing files are fetched, not a reason to reset: an\n  # accelerator runs the pick without them, and for a chestnut the manager\n  # fetches them (ModelManagerSP._fetch_big_model_files). A change from\n  # upstream for chestnuts too: files gone means a re-fetch, not the default\n  check_files = source != \"chestnut\"\n"
+                },
+                {
+                  "start": 4068,
+                  "old": "  return not _bundle_is_valid_locally(active_bundle)\n",
+                  "new": "  return check_files and not _bundle_is_valid_locally(active_bundle)\n"
+                },
+                {
+                  "start": 3188,
+                  "old": "def _bundle_needs_reset(active_bundle: custom.ModelManagerSP.ModelBundle, available_bundles: list[custom.ModelManagerSP.ModelBundle] | None) -> bool:\n",
+                  "new": "def _bundle_needs_reset(active_bundle: custom.ModelManagerSP.ModelBundle, available_bundles: list[custom.ModelManagerSP.ModelBundle] | None,\n                        check_files: bool) -> bool:\n"
+                }
+              ]
+            },
+            "openpilot/system/hardware/hardwared.py": {
+              "sha": "bd5e9ca8a67110969206a005fb348c90bbc169c7",
+              "changes": [
+                {
+                  "start": 31859,
+                  "old": "",
+                  "new": "      # an accelerator on its own supply outlives us; one param read when jetlink is off\n      accelerators.shutdown(f\"comma shutting down, offroad since {off_ts}\", timeout=25.0)\n"
+                },
+                {
+                  "start": 23258,
+                  "old": "    stage_started = log_slow_hardware_stage(\"main\", \"display_usb_chestnut\", stage_started, last_slow_stage_log,\n                                            started_ts is not None, sm.frame)\n",
+                  "new": "    stage_started = log_slow_hardware_stage(\"main\", \"display_usb_chestnut\", stage_started, last_slow_stage_log,\n                                            started_ts is not None, sm.frame)\n\n    # an enabled accelerator that cannot come up is otherwise silently absent\n    accelerator_error = accelerators.unavailable_reason()\n    set_offroad_alert_if_changed(\"Offroad_AcceleratorUnavailable\", accelerator_error is not None,\n                                 extra_text=accelerator_error)\n\n"
+                },
+                {
+                  "start": 1063,
+                  "old": "",
+                  "new": "from openpilot.sunnypilot import accelerators\n"
+                }
+              ]
+            },
+            "openpilot/system/manager/process_config.py": {
+              "sha": "b351580b4a8082f669b37df913026df362ef897f",
+              "changes": [
+                {
+                  "start": 9055,
+                  "old": "",
+                  "new": "  # backends declare their offroad daemons; manager owns the onroad gating\n  # always_run: jetlinkd holds the USB gadget open for as long as the link is\n  # enabled, onroad included. A gadget whose owner exits leaves the bus, and\n  # that is the unplug at every ignition edge this arrangement removes\n  *[PythonProcess(d.name, d.module, and_(always_run, d.should_run)) for d in accelerators.daemons()],\n"
+                },
+                {
+                  "start": 352,
+                  "old": "",
+                  "new": "from openpilot.sunnypilot import accelerators\n"
+                }
+              ]
+            },
+            "openpilot/sunnypilot/models/manager.py": {
+              "sha": "7b73e12793c79eb6fe2819141b901d0236d4ce1b",
+              "changes": [
+                {
+                  "start": 15270,
+                  "old": "        self._process_download_requests()",
+                  "new": "        self._fetch_big_model_files()\n        self._process_download_requests()"
+                },
+                {
+                  "start": 14889,
+                  "old": "        if get_selected_bundle(self.params, \"chestnut\") is not None",
+                  "new": "        if self.chestnut_present and get_selected_bundle(self.params, \"chestnut\") is not None"
+                },
+                {
+                  "start": 13298,
+                  "old": "  def _process_download_requests(self) -> None:",
+                  "new": "  def _fetch_big_model_files(self) -> None:\n    \"\"\"The big-model slot is a choice for whichever hardware runs it. A chestnut\n    needs the bundle's files; an accelerator fetches its own form of the model\n    by the bundle's ref. So without a chestnut the pick is stored without its\n    files (_download_bundle), validation never resets the slot over missing\n    files (helpers.validate_active_bundles), and here they are fetched once a\n    chestnut is fitted, or again if they went missing. Once per ref per\n    process, so a download that keeps failing does not spin.\"\"\"\n    if not self.chestnut_present or self.params.get(\"ModelManager_DownloadRef\") is not None:\n      return\n    raw = self.params.get(ACTIVE_BUNDLE_KEYS[\"chestnut\"])\n    if not isinstance(raw, dict) or raw.get(\"ref\") in self._big_files_checked:\n      return   # the raw ref first: parsing the slot every tick is not worth a set lookup\n    bundle = get_selected_bundle(self.params, \"chestnut\")\n    if bundle is None:\n      return\n    self._big_files_checked.add(bundle.ref)\n    if not _bundle_is_valid_locally(bundle):\n      cloudlog.warning(f\"Fetching the files of the selected big model {bundle.displayName} for the chestnut\")\n      self.params.put(\"ModelManager_DownloadRef\", bundle.ref)\n\n  def _process_download_requests(self) -> None:"
+                },
+                {
+                  "start": 11992,
+                  "old": "      for model in self.selected_bundle.models:",
+                  "new": "      for model in models:"
+                },
+                {
+                  "start": 11726,
+                  "old": "    for model in self.selected_bundle.models:\n      model.artifact.downloadProgress.status",
+                  "new": "    models = [] if source == \"chestnut\" and not self.chestnut_present else self.selected_bundle.models\n    for model in models:\n      model.artifact.downloadProgress.status"
+                },
+                {
+                  "start": 1817,
+                  "old": "    self._download_ref: bytes | str | None = None",
+                  "new": "    self._download_ref: bytes | str | None = None\n    self._big_files_checked: set[str] = set()"
+                },
+                {
+                  "start": 574,
+                  "old": "from openpilot.sunnypilot.models.helpers import (ACTIVE_BUNDLE_KEYS,",
+                  "new": "from openpilot.sunnypilot.models.helpers import (ACTIVE_BUNDLE_KEYS, _bundle_is_valid_locally,"
+                }
+              ]
+            },
+            "openpilot/sunnypilot/selfdrive/selfdrived/events.py": {
+              "sha": "f55fc5c00a7841621ce07f0f9874b206bad46b40",
+              "changes": [
+                {
+                  "start": 8276,
+                  "old": "  EventNameSP.bigModelReady:",
+                  "new": "  EventNameSP.bigModelAvailable: {\n    ET.PERMANENT: Alert(\n      \"Big Model Available\",\n      \"Stop with cruise off,\\nor turn lateral off\",\n      AlertStatus.normal, AlertSize.mid,\n      Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 3.),\n  },\n\n  EventNameSP.bigModelLinkLost: {\n    ET.SOFT_DISABLE: soft_disable_alert(\"Big Model Lost\"),\n    ET.PERMANENT: NormalPermanentAlert(\"Big Model Lost\", \"Small model is driving,\\nreconnecting if it comes back\", duration=20.),\n  },\n\n  EventNameSP.bigModelReady:"
+                },
+                {
+                  "start": 225,
+                  "old": "import openpilot.cereal.messaging as messaging",
+                  "new": "import openpilot.cereal.messaging as messaging\nfrom openpilot.selfdrive.selfdrived.events import soft_disable_alert"
+                }
+              ]
+            }
+          }
+          for filename, patch in patches.items():
+              p = Path(filename)
+              actual = subprocess.check_output(["git", "hash-object", str(p)], text=True).strip()
+              assert actual == patch["sha"], f"NRDR source changed: {filename}"
+              s = p.read_text()
+              for change in patch["changes"]:
+                  start, old, new = change["start"], change["old"], change["new"]
+                  assert s[start:start + len(old)] == old, filename
+                  s = s[:start] + new + s[start + len(old):]
+              if filename.endswith(".py"):
+                  ast.parse(s, filename=filename)
+              elif filename.endswith(".json"):
+                  json.loads(s)
+              p.write_text(s)
+              print(f"Ported {filename}")
+          
+          # The base ships compiled artifacts. Rebuild on the target after changing
+          # schemas, params, and modeld; never advertise its old binaries as this port.
+          Path("prebuilt").unlink(missing_ok=True)
+          PY
+
+          # Validate before publishing the rebuilt source tree.
+          python3 -m compileall -q openpilot/sunnypilot/accelerators openpilot/selfdrive/modeld/modeld.py openpilot/sunnypilot/modeld_v2/modeld.py
+          python3 - <<'PY'
+          """Run upstream joining tests with hardware/IPC dependencies stubbed."""
+          import importlib.util
+          import sys
+          import types
+          import unittest
+          from pathlib import Path
+          from unittest import mock
+          
+          def module(name):
+              if name in sys.modules:
+                  return sys.modules[name]
+              m = types.ModuleType(name)
+              m.__path__ = []
+              sys.modules[name] = m
+              if "." in name:
+                  parent, child = name.rsplit(".", 1)
+                  setattr(module(parent), child, m)
+              return m
+          
+          for name in ("openpilot.cereal.messaging", "openpilot.sunnypilot.accelerators",
+                       "openpilot.sunnypilot.accelerators.jetlink.helpers"):
+              module(name)
+          module("openpilot.common.realtime").drop_realtime = lambda: None
+          module("openpilot.common.realtime").set_core_affinity = lambda cores: None
+          module("openpilot.common.swaglog").cloudlog = mock.Mock()
+          module("openpilot.common.basedir").BASEDIR = str(Path(".").resolve())
+          module("openpilot.sunnypilot.accelerators.jetlink.helpers").CC_ORIENTATION = mock.Mock()
+          module("openpilot.sunnypilot.accelerators.jetlink.helpers").CC_ORIENTATION.read_text.return_value = "1"
+          def load(name, path):
+              spec = importlib.util.spec_from_file_location(name, path)
+              m = module(name)
+              spec.loader.exec_module(m)
+              return m
+          load("openpilot.sunnypilot.accelerators.jetlink.joining", "openpilot/sunnypilot/accelerators/jetlink/joining.py")
+          tests = load("test_joining", "openpilot/sunnypilot/accelerators/jetlink/tests/test_joining.py")
+          result = unittest.TextTestRunner(verbosity=1).run(unittest.defaultTestLoader.loadTestsFromModule(tests))
+          sys.exit(not result.wasSuccessful())
+          PY
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq capnproto
+          capnp compile -I openpilot/cereal -o- openpilot/cereal/custom.capnp >/dev/null
+
+          git add .gitmodules .github/workflows/bootstrap-jetson-trt.yml jetlink_repo
+          git add -A
+          git status --short
+          git commit -m "Port Jetlink TensorRT accelerator support to nrdr-clean [jetson-trt-integrated]"
+
+          # Keep main as the clean nrdr-clean base and publish the integrated
+          # implementation on jetson-trt.
+          git push --force-with-lease="refs/heads/jetson-trt:$GITHUB_SHA" origin HEAD:jetson-trt
