@@ -24,24 +24,24 @@ A flashing GPU icon can mean download, preparation, or connection waiting. Confi
 
 ## Latest drive · September 19, 2026
 
-**Cinque Terre V2 verified across all 9 full-rate segments**, 22:12:10–22:20:17 UTC. This recording includes substantial parked time.
+**Cinque Terre V2 verified across all 20 full-rate segments**, 23:03:59–23:23:04 UTC.
 
 | Measurement | Result |
 | --- | --- |
-| Recording / movement | 8:07 total · 2:08 moving · 0.844 km / 0.525 mi |
-| Large-model use | 5,601 / 9,595 messages (58.37%); all large-model messages valid |
-| Connection | ~200 s waiting for Jetson, then continuous large-model use |
-| Model execution | Mean 33.78 ms · p95 36.93 ms · max 101.25 ms |
-| Telemetry | 267 readings; all reported `dead=false` |
-| Temperature | Mean 62.04°C · peak 66.0°C |
-| Power / cooling | Mean 13.22 W · 2,682 RPM |
-| GPU | Mean 76.63% load · 1,020 MHz |
+| Drive | 19:05 total · 16:22 moving · 14.858 km / 9.232 mi |
+| Large-model use | 22,209 / 22,610 messages (98.23%); all large-model messages valid |
+| Startup | ~20 s from first model message to handoff, then no fallback |
+| Model execution | Mean 34.25 ms · p95 37.54 ms · max 55.01 ms |
+| Telemetry | 1,051 readings; all reported `dead=false` |
+| Temperature | Mean 67.15°C · peak 71.7°C |
+| Power / cooling | Mean 13.45 W · 3,204 RPM |
+| GPU | Mean 78.77% load · 1,020 MHz |
 
-One 115 ms model-message gap occurred while stationary, with brief communication/localization events and no fallback. Temporary steering-fault flags totaled **8.02 s** across 17 episodes (7.15 s moving); cause remains unresolved.
+Temporary steering-fault flags totaled **9.22 s** across 10 episodes (8.23 s moving). Six messages carried a **stock forward-collision-warning flag** near the end; context and cause remain unresolved. One model-message interval reached 100.89 ms.
 
-**Both Cinque Terre recordings:** 26,776 large-model messages; sample-weighted execution **38.80 ms**. Across 1,271 telemetry readings: **54.21°C, 13.11 W, 1,853 RPM**. Keep these separate from BMRLNAP results.
+**Three Cinque Terre recordings:** 48,985 large-model messages; sample-weighted execution **36.73 ms**. Across 2,322 telemetry readings: **60.07°C, 13.26 W, 2,464 RPM**. BMRLNAP results remain separate.
 
-[Latest analysis](https://github.com/ryanafdahl/nrdr-jetstream/blob/jetson-trt/docs/CINQUE_TERRE_DRIVE_2026-09-19_2212.md) · [Previous drive](https://github.com/ryanafdahl/nrdr-jetstream/blob/jetson-trt/docs/CINQUE_TERRE_DRIVE_2026-09-19.md) · [Check history](https://github.com/ryanafdahl/nrdr-jetstream/blob/jetson-trt/docs/HARDWARE_CHECK_HISTORY_2026-09-19.md). Raw logs/video remain private; fully offline startup awaits verification.
+[Latest analysis](https://github.com/ryanafdahl/nrdr-jetstream/blob/jetson-trt/docs/CINQUE_TERRE_DRIVE_2026-09-19_2303.md) · [Previous recording](https://github.com/ryanafdahl/nrdr-jetstream/blob/jetson-trt/docs/CINQUE_TERRE_DRIVE_2026-09-19_2212.md) · [Check history](https://github.com/ryanafdahl/nrdr-jetstream/blob/jetson-trt/docs/HARDWARE_CHECK_HISTORY_2026-09-19.md). Jetson data here comes from comma-side logs; direct Jetson logs were unavailable while it was offline. Raw logs/video remain private.
 
 ## Precache for the car
 
@@ -53,7 +53,7 @@ Use the installed container's `python3 -m jetlink.registry fetch <ref>` and `pre
 
 ## Changes and source
 
-**September 19:** renamed the project and comma 4 home-screen title to **NRDR JetStream**; integrated Jetlink; restored hash-verified native ONNX chunks; fixed lease cleanup and compilation failure handling; added the short installer; verified BMRLNAP inference; precached Cinque Terre in 30.5 s and verified it across two recordings.
+**September 19:** renamed the project and comma 4 home-screen title to **NRDR JetStream**; integrated Jetlink; restored hash-verified native ONNX chunks; fixed lease cleanup and compilation failure handling; added the short installer; verified BMRLNAP inference; precached Cinque Terre in 30.5 s and verified it across three recordings.
 
 Development: [jetson-trt](https://github.com/ryanafdahl/nrdr-jetstream/tree/jetson-trt). Install candidate: `9abb37bf7e5b29e08566c077e7a319fa11b51b52`. Install branches are updated separately from development. [Validation](https://github.com/ryanafdahl/nrdr-jetstream/actions/runs/35460627418): 69 portable tests passed twice. [Installer checks](https://github.com/ryanafdahl/nrdr-jetstream/actions/runs/35461743304) passed.
 
