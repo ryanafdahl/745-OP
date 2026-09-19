@@ -15,7 +15,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git ls-remote --heads https://github.com/ryanafdahl/openpilot.git refs/heads/nrdr-OP-jetson-trt | cut -f1)" = 97629ae3bd9f501777d4282c9cef2032c28e4efd
+          test "$(git ls-remote --heads https://github.com/ryanafdahl/openpilot.git refs/heads/nrdr-OP-jetson-trt | cut -f1)" = b6756fe80c3df2e0bbfde3c512d29e02cf1127b5
           curl --fail --location --retry 3 --user-agent 'AGNOSSetup-19.7' -H 'X-openpilot-device-type: mici' https://installer.comma.ai/ryanafdahl/nrdr-OP-jetson-trt -o /tmp/comma-installer
           python3 - <<'PY'
           import hashlib
@@ -62,3 +62,8 @@ jobs:
               print(json.dumps({"branch":branch,"status":exc.code,"body":exc.read(1000).decode("utf8","replace")}))
               raise
           PY
+
+      - name: Verify model inputs in an anonymous installation clone
+        run: |
+          git clone --depth=1 --recurse-submodules --branch nrdr-op-jetson-trt https://github.com/ryanafdahl/openpilot.git "$RUNNER_TEMP/install-clone"
+          python3 "$RUNNER_TEMP/install-clone/tools/check_jetson_model_sources.py"
