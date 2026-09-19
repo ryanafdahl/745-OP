@@ -16,7 +16,7 @@ No SSH, long URL, separate staging build, or rollback step is required.
 
 Both uppercase `nrdr-OP-jetson-trt` and lowercase `nrdr-op-jetson-trt` install branches point to the same candidate. Use lowercase for easier entry. A misspelled or nonexistent branch can misleadingly produce “incompatible openpilot version”; that message alone does not prove an OS mismatch.
 
-Comma's setup screen expands `username/branch` to its compiled fork installer. This entry installs branch `nrdr-OP-jetson-trt` from [ryanafdahl/openpilot](https://github.com/ryanafdahl/openpilot/tree/nrdr-OP-jetson-trt). That branch publishes the candidate from this development repository; it currently points to `97629ae3bd9f501777d4282c9cef2032c28e4efd`. It does not automatically track new development commits.
+Comma's setup screen expands `username/branch` to its compiled fork installer. This entry installs branch `nrdr-OP-jetson-trt` from [ryanafdahl/openpilot](https://github.com/ryanafdahl/openpilot/tree/nrdr-OP-jetson-trt). That branch publishes the candidate from this development repository; it currently points to `b6756fe80c3df2e0bbfde3c512d29e02cf1127b5`. It does not automatically track new development commits.
 
 The equivalent full URL is:
 
