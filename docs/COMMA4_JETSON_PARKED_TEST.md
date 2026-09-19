@@ -1,9 +1,10 @@
+<!-- Setup URL correction: see the current installation guide. -->
 # Comma four + Jetson: experimental installation and hardware validation
 
 **Status: experimental source installer available; hardware validation pending.**
 
-Use [the direct installation guide](JETSON_INSTALL.md) for the public installer, first-boot build and rollback. The isolated staging procedure below is optional diagnostic tooling, not a prerequisite to that installation.
-A successful source-audit workflow does not establish hardware compatibility or qualify this candidate for driving. Preserve your existing software using the installer's backup procedure.
+Use [the direct installation guide](JETSON_INSTALL.md) for the short-name factory-reset procedure and first-boot build. The isolated staging procedure below is optional diagnostic tooling, not a prerequisite to that installation.
+A successful source-audit workflow does not establish hardware compatibility or qualify this candidate for driving. The selected installation procedure is a factory reset; it does not use the optional SSH helper's backup procedure.
 
 ## Source revisions under review
 
@@ -24,7 +25,7 @@ The following remain required: a clean target build, native boot/import checks, 
 
 ## Corrections to earlier installation instructions
 
-The earlier `installer.comma.ai/ryanafdahl/jetson-trt` URL is **not a verified installer for this repository**. The documented comma example uses an account's `openpilot` repository; this repository is named `nrdr-OP-jetson-trt`. It is now public. The direct installation guide supplies a repository-specific installer; the old account/branch URL remains incorrect for this repository.
+The earlier `installer.comma.ai/ryanafdahl/jetson-trt` URL is **not a verified installer for this repository**. The documented comma example uses an account's `openpilot` repository; this repository is named `nrdr-OP-jetson-trt`. It is now public. The direct installation guide now uses `ryanafdahl/nrdr-OP-jetson-trt`, backed by a published candidate branch in `ryanafdahl/openpilot`. The earlier raw Python URL is invalid for the setup screen because that screen requires an ELF installer.
 
 Before any install, inspect the actual installer payload and establish that its repository, branch, revision, authentication and submodule behavior match this project. Use an authenticated staging method or a reviewed installer with the exact repository. Do not put a GitHub token in a publicly shared URL, publish the repository without explicit permission, or rename it merely to follow the earlier URL.
 
