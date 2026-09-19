@@ -55,17 +55,22 @@ Pooled telemetry means are weighted by reading count, not averaged from rounded 
 
 For each subsequent requested check, record its UTC start/end, model and telemetry sample counts, per-check means, and updated sample-weighted totals here. Keep missing readings explicit and retain temperature trends.
 
-### New-model preparation check · September 19, 2026
+### New-model preparation checks · September 19, 2026
 
-At **20:42:15–20:42:25 UTC**, the selected model was **Cinque Terre Model V2 (September 08, 2026)**, SHA prefix `09d080f36965bb2a` (~730 MiB). The comma reached the Orin and requested engine preparation at approximately 20:40:18 UTC after a USB reader timeout/retry.
+Selected: **Cinque Terre Model V2 (September 08, 2026)**, SHA prefix `09d080f36965bb2a` (~730 MiB). The comma reached the Orin and requested engine preparation at approximately **20:40:18 UTC**, after a USB reader timeout/retry.
 
-The check received **201 native-model messages and 0 large-model messages**; streams were alive/valid, with the latest sample stationary, controls disabled, and no alert. There were **0 Jetlink inference telemetry readings**, so temperature/power/fan averages are **unavailable**, not zero. This preparation check is excluded from the earlier BMRLNAP inference averages.
+| UTC sampling window | Native messages | Large-model messages | Jetlink telemetry readings |
+| --- | ---: | ---: | ---: |
+| 20:42:15–20:42:25 | 201 | 0 | 0 |
+| 20:43:52–20:44:02 | 200 | 0 | 0 |
+| 20:48:40–20:48:50 | 200 | 0 | 0 |
+| **Total (~30 seconds sampled)** | **601** | **0** | **0** |
 
-Repeat check **20:43:52–20:44:02 UTC**: **200 native / 0 large-model messages**, no alerts, and no Jetlink telemetry readings. Both preparation checks total **401 native / 0 large-model messages** over approximately 20 seconds; temperature, power, fan, and GPU averages remain unavailable. No new handoff or error appeared in the reviewed Jetlink log; the last preparation request was about 3 minutes 44 seconds earlier. Completion is not established.
+Latest check: all 200 model messages valid, streams alive/valid, car stationary, controls disabled, no displayed alert. Temperature, power, fan, and GPU means remain **unavailable**, not zero; these preparation checks are excluded from BMRLNAP inference averages.
 
-The preparation parameter said `load / ready`, but it was over two minutes old and no live large-model handoff had been observed. Treat live `modelV2.big` and telemetry as the confirmation; this check does not establish that the new engine is running.
+At 20:48:50 UTC, about **8 min 32 s** after the request, no new handoff, completion, or error was present in the reviewed Jetlink logs. The parameter still said `load / ready`, but live inference did not confirm it. Server-side build progress cannot be determined from this stale parameter.
 
-Scheduled check triggered **20:46:47 UTC** could not launch SSH because of a local Windows sandbox configuration error. No device connection or sampling occurred; model status and telemetry averages are **unavailable** for this attempt, and prior sample totals remain unchanged. This is a monitoring failure, not evidence of a Jetson failure.
+The scheduled 20:46:47 UTC attempt was blocked before SSH by a local Windows sandbox error and contributed no samples. SSH access recovered for the 20:48:40 check. Monitoring continues until live activation is verified.
 
 ## Drive recap · September 19, 2026
 
