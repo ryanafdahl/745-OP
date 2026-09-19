@@ -2,7 +2,7 @@
 
 NRDR openpilot for **comma 4**, with **Jetson Orin Nano Super** acceleration through USB Jetlink and TensorRT. The native small-model path remains available as fallback.
 
-**Status:** installed and booted on comma 4; live large-model inference verified while parked. Experimental—sustained reliability, offline cold starts, reconnect/fallback, and vehicle operation are not yet qualified.
+**Status:** installed and booted on comma 4; live large-model inference verified while parked and across one analyzed drive. Experimental—sustained reliability, offline cold starts, reconnect/fallback, and vehicle operation are not yet qualified.
 
 ## Install
 
@@ -54,6 +54,18 @@ Telemetry means below use logged readings in each UTC interval `[start, start + 
 Pooled telemetry means are weighted by reading count, not averaged from rounded rows; mean GPU clock was 1,020 MHz in all three windows. These are sampled windows, not continuous monitoring. Temperature rose between checks; the pooled mean does not establish thermal stability. No new disconnect/fallback entries were found in the reviewed refresh logs. Per-frame GPU timing above is an initial observation, not a telemetry-window average.
 
 For each subsequent requested check, record its UTC start/end, model and telemetry sample counts, per-check means, and updated sample-weighted totals here. Keep missing readings explicit and retain temperature trends.
+
+## Drive recap · September 19, 2026
+
+Analyzed all **16 full-rate log segments**: **14 min 58 s**, approximately **7.82 km (4.86 mi)**, maximum **44.59 mph**.
+
+- **Inference:** 17,227/17,830 messages used the large model (96.62%). The first 603 were native; after handoff, no return to native was recorded.
+- **Large-model execution:** mean **44.36 ms**, p95 **45.53 ms**, maximum **76.51 ms**. This measures the model call on the comma, not GPU-only time.
+- **814 telemetry readings:** mean **62.96°C**, **12.90 W**, **2,621 RPM**; peak **83.9°C**, ending **49.9°C**. Drive averages are separate from parked checks.
+- **Controls:** lateral-active time **12 min 14 s**. Temporary steering-fault flags totaled **22.96 s** across 41 episodes, including **19.18 s while moving**. Cause remains unresolved; sustained inference does not mean fault-free steering.
+- Calibration messages were all calibrated. Startup communication/localization events and an initial native-model timing outlier were recorded.
+
+[Detailed analysis, averages, and limitations](https://github.com/ryanafdahl/nrdr-jetson/blob/jetson-trt/docs/DRIVE_RECAP_2026-09-19.md). Raw logs/video remain private; no visual driving review or fully offline cold-start qualification has been completed.
 
 ## Source and validation
 
