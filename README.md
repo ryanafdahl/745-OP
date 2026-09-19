@@ -55,6 +55,14 @@ Pooled telemetry means are weighted by reading count, not averaged from rounded 
 
 For each subsequent requested check, record its UTC start/end, model and telemetry sample counts, per-check means, and updated sample-weighted totals here. Keep missing readings explicit and retain temperature trends.
 
+### New-model preparation check · September 19, 2026
+
+At **20:42:15–20:42:25 UTC**, the selected model was **Cinque Terre Model V2 (September 08, 2026)**, SHA prefix `09d080f36965bb2a` (~730 MiB). The comma reached the Orin and requested engine preparation at approximately 20:40:18 UTC after a USB reader timeout/retry.
+
+The check received **201 native-model messages and 0 large-model messages**; streams were alive/valid, with the latest sample stationary, controls disabled, and no alert. There were **0 Jetlink inference telemetry readings**, so temperature/power/fan averages are **unavailable**, not zero. This preparation check is excluded from the earlier BMRLNAP inference averages.
+
+The preparation parameter said `load / ready`, but it was over two minutes old and no live large-model handoff had been observed. Treat live `modelV2.big` and telemetry as the confirmation; this check does not establish that the new engine is running.
+
 ## Drive recap · September 19, 2026
 
 Analyzed all **16 full-rate log segments**: **14 min 58 s**, approximately **7.82 km (4.86 mi)**, maximum **44.59 mph**.
