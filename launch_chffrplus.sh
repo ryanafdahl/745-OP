@@ -102,7 +102,8 @@ function launch {
   # start manager
   cd openpilot/system/manager
   if [ ! -f $DIR/prebuilt ]; then
-    ./build.py
+    # A failed source build must never start manager with inherited binaries.
+    ./build.py || exit $?
   fi
   ./manager.py
 
