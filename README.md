@@ -30,13 +30,28 @@ Jetlink is opt-in (`JetlinkEnabled`). A flashing grey GPU icon means preparation
 | Check | Observation |
 | --- | --- |
 | Live model | BMRLNAP Model v4, August 30, 2026; SHA prefix `a086d5249fc308bb` |
-| Parked checks | 160/160, then 200/200 and 200/200 messages had `modelV2.big=true` across separate 8-, 10-, and 10-second samples |
+| Parked checks | 760/760 messages had `modelV2.big=true` across four separate checks totaling 38 seconds (~20 messages/s) |
 | State | Stationary, controls disabled; no displayed alert at the checks |
 | Timing | Initial server GPU time ~19.2 ms/frame; cached engine build recorded 155.7 seconds |
-| Latest telemetry | 74.1°C, ~14 W, fan ~3,907 RPM; no new disconnect/fallback entries in reviewed logs |
+| Telemetry averages | 75.14°C, 13.68 W, 3,817 RPM across 29 logged readings in the three timed windows below |
 | Software | TensorRT 10.3.0 / Orin-sm87; observed host L4T R39.2.1 |
 
 The donor reference uses **JetPack 6.2 / L4T R36.4.3**; the observed host differs. These short checks are not a sustained performance or thermal qualification. The server loaded its cached engine at startup, but complete offline cold-start behavior remains unverified. Earlier DNS failures and USB endpoint-busy/disconnect errors still require recovery testing.
+
+### Check averages
+
+Telemetry means below use logged readings in each UTC interval `[start, start + 10 seconds)` on September 19, 2026. Model counts come from the corresponding live subscriptions. The initial eight-second check returned 160/160 large-model messages, but its exact telemetry window was not recorded, so it is excluded from telemetry averages.
+
+| Check start (UTC) | Large-model messages | Telemetry readings | Mean °C | Mean W | Mean fan RPM | Mean GPU load |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 19:56:04 | 200/200 | 10 | 70.62 | 13.20 | 3,517 | 74.70% |
+| 19:57:07 | 200/200 | 10 | 73.89 | 13.97 | 3,899 | 83.00% |
+| 20:01:39 | 200/200 | 9 | 81.54 | 13.88 | 4,060 | 83.67% |
+| **Pooled** | **600/600** | **29** | **75.14** | **13.68** | **3,817** | **80.34%** |
+
+Pooled telemetry means are weighted by reading count, not averaged from rounded rows; mean GPU clock was 1,020 MHz in all three windows. These are sampled windows, not continuous monitoring. Temperature rose between checks; the pooled mean does not establish thermal stability. No new disconnect/fallback entries were found in the reviewed refresh logs. Per-frame GPU timing above is an initial observation, not a telemetry-window average.
+
+For each subsequent requested check, record its UTC start/end, model and telemetry sample counts, per-check means, and updated sample-weighted totals here. Keep missing readings explicit and retain temperature trends.
 
 ## Source and validation
 
