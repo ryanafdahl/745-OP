@@ -69,7 +69,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          curl --fail --location --retry 3 "https://raw.githubusercontent.com/ryanafdahl/nrdr-OP-jetson-trt/${{ github.sha }}/tools/install_jetson.py" -o "$RUNNER_TEMP/public-installer.py"
+          curl --fail --location --retry 3 "https://raw.githubusercontent.com/ryanafdahl/nrdr-jetson/${{ github.sha }}/tools/install_jetson.py" -o "$RUNNER_TEMP/public-installer.py"
           cmp tools/install_jetson.py "$RUNNER_TEMP/public-installer.py"
           python3 -c 'from tools.install_jetson import REVISION; import subprocess; subprocess.run(["git", "merge-base", "--is-ancestor", REVISION, "HEAD"], check=True)'
       - name: Capture exact source revision and diff
