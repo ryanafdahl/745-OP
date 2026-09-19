@@ -62,3 +62,32 @@ This branch's `Params.get` returns typed values and does not accept the old `enc
 The source-audit artifacts are evidence only, **not an installable image or release**. No safety certification or road-use approval is implied.
 
 Safety reference: https://docs.comma.ai/SAFETY/
+
+## Concrete next step: build in a separate comma 4 checkout
+
+`tools/jetson_staged_build.py` now prepares native build evidence without installing or launching this branch. Run it on the physically disconnected, correctly powered comma 4 described above. Its default mode is read-only preflight. It requires the source's AGNOS version (currently 19.7); an OS mismatch stops the procedure rather than upgrading the device.
+
+Use the full commit SHA from a **successful source-audit run containing this tool**, with GitHub authentication already configured for this private repository. Do not embed credentials in the clone URL. Replace the value of `REV` below:
+
+```bash
+REV=REPLACE_WITH_REVIEWED_40_CHARACTER_COMMIT_SHA
+STAGE="/data/jetson-trt-stage-$REV"
+GIT_LFS_SKIP_SMUDGE=1 git clone --no-checkout https://github.com/ryanafdahl/nrdr-OP-jetson-trt.git "$STAGE"
+cd "$STAGE"
+git checkout --detach "$REV"
+git submodule update --init --recursive
+git lfs pull
+/usr/local/venv/bin/python3 tools/jetson_staged_build.py --expected-commit "$REV"
+```
+
+Proceed to the build only after preflight succeeds. Keep the existing installation in place. This command compiles in the staging checkout and writes logs under `/data/jetson-trt-evidence/`:
+
+```bash
+/usr/local/venv/bin/python3 tools/jetson_staged_build.py --expected-commit "$REV" --build --jobs 2
+```
+
+The build uses SCons with its cache disabled and no existing build signature, builds both camera configurations, validates native model assets, imports fresh Params/cereal bindings, and loads the comma-side Jetlink warp to verify its captured inputs. It records dependency versions, source/submodule revisions, artifact SHA-256 hashes, and a final `result.json`. A successful result is `BUILD_AND_SMOKE_PASSED`; this is **not** proof of live inference or a car-test pass. Watch `build.log` from a second SSH session if desired.
+
+If it fails, preserve the evidence directory and checkout. Return `result.json` and the failing log for the next fix. Do not manually create a `prebuilt` marker or start manager to get around a failure. A new evidence build uses a fresh staging directory; rename the failed staging directory to preserve it before reusing the same revision's name.
+
+After a successful build, the next step is a separately reviewed isolated camera/native-model run, followed by the pinned Jetson server and reconnect/fallback tests. The existing `jetlink_live_bench.sh` defaults to the accelerator path and `jetlink_bench.py` includes a synthetic-engagement option; neither is the first-step command here. Confirm Jetson model/RAM, JetPack/L4T/TensorRT, power/data wiring, and the isolated runtime setup before that stage. Do not run the standard release publisher for this staging build: its defaults include publishing branches.
