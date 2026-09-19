@@ -65,6 +65,8 @@ Repeat check **20:43:52–20:44:02 UTC**: **200 native / 0 large-model messages*
 
 The preparation parameter said `load / ready`, but it was over two minutes old and no live large-model handoff had been observed. Treat live `modelV2.big` and telemetry as the confirmation; this check does not establish that the new engine is running.
 
+Scheduled check triggered **20:46:47 UTC** could not launch SSH because of a local Windows sandbox configuration error. No device connection or sampling occurred; model status and telemetry averages are **unavailable** for this attempt, and prior sample totals remain unchanged. This is a monitoring failure, not evidence of a Jetson failure.
+
 ## Drive recap · September 19, 2026
 
 Analyzed all **16 full-rate log segments**: **14 min 58 s**, approximately **7.82 km (4.86 mi)**, maximum **44.59 mph**.
