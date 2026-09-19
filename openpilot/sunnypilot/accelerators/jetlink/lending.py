@@ -129,11 +129,18 @@ def borrow(name: str = 'modeld', timeout: float = BORROW_TIMEOUT, path: Path = S
   did, so a drive never loses the large model to a daemon fault.
   """
   deadline = time.monotonic() + timeout
+  conn = None
   try:
     conn = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     conn.settimeout(POLL)
     conn.connect(str(path))
   except OSError:
+    # A failed connect still owns a descriptor. Do not leave cleanup to GC.
+    if conn is not None:
+      try:
+        conn.close()
+      except OSError:
+        pass
     return None   # no jetlinkd listening; the caller owns the gadget itself
   buf = bytearray()
   try:
@@ -176,7 +183,8 @@ class Lender:
   @property
   def listening(self) -> bool:
     """Can anybody ask us for the endpoints? If not, holding ep0 only keeps
-    the borrower out; see Jetlinkd.step."""
+    the borrower out; see Jetlinkd.step.
+    """
     return self._sock is not None
 
   @property
@@ -188,6 +196,7 @@ class Lender:
   def start(self) -> bool:
     if self._thread is not None:
       return True
+    sock = None
     try:
       self._clear_stale()
       sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
@@ -195,6 +204,11 @@ class Lender:
       sock.listen(1)
       sock.settimeout(POLL)
     except OSError:
+      if sock is not None:
+        try:
+          sock.close()
+        except OSError:
+          pass
       # a read-only /dev/shm, or a path somebody else owns. modeld opens the
       # gadget itself when nobody answers, so this is not fatal
       gadget.log.exception("jetlink: could not listen on %s", self.path)

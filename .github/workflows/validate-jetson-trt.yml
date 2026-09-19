@@ -56,6 +56,7 @@ jobs:
             python3 -m unittest -v \
               openpilot.sunnypilot.accelerators.jetlink.tests.test_gadget \
               openpilot.sunnypilot.accelerators.jetlink.tests.test_lending \
+              openpilot.sunnypilot.accelerators.jetlink.tests.test_lending_cleanup \
               openpilot.sunnypilot.accelerators.jetlink.tests.test_lfs \
               openpilot.sunnypilot.accelerators.jetlink.tests.test_vmtune \
               2>&1 | tee "audit-output/portable-tests-pass${pass}.txt"
@@ -70,6 +71,8 @@ jobs:
           git diff --no-renames --stat "$NRDR_BASE" HEAD > audit-output/change-stat.txt
           git diff --no-renames --binary "$NRDR_BASE" HEAD > audit-output/port.patch
           git ls-tree -r HEAD > audit-output/tree.txt
+          cp openpilot/sunnypilot/accelerators/jetlink/lending.py audit-output/reviewed-lending.py
+          cp openpilot/sunnypilot/accelerators/jetlink/tests/test_lending_cleanup.py audit-output/reviewed-lending-tests.py
       - name: Save audit evidence, not an installable release
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
