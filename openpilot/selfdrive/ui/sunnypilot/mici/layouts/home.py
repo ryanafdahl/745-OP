@@ -18,7 +18,7 @@ from openpilot.system.ui.widgets.label import UnifiedLabel
 class MiciHomeLayoutSP(MiciHomeLayout):
   def __init__(self):
     super().__init__()
-    self._openpilot_label = UnifiedLabel("sunnypilot", font_size=88, font_weight=FontWeight.AUDIOWIDE, max_width=480, wrap_text=False)
+    self._openpilot_label = UnifiedLabel("NRDR JetStream", font_size=48, font_weight=FontWeight.AUDIOWIDE, max_width=480, wrap_text=False)
     self.nrdr = NrdrMiciHome(self)
 
   def _update_state(self):
