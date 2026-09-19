@@ -2,47 +2,50 @@
 
 Experimental Jetson acceleration port for **comma 4**, based on NRDR's `nrdr-clean` source. Jetlink connects the comma-side model pipeline to a separately configured NVIDIA Jetson running TensorRT. The native model path remains available as the fallback.
 
-**Current status:** a public, pinned source installer is available. Source audits and portable tests pass; native compilation, USB connectivity, TensorRT inference, and vehicle behavior still require hardware testing. This is not a precompiled image or a road-qualified release.
+**Current status:** a short installation entry is available through comma's standard fork installer. Source audits and portable tests pass; native compilation, USB connectivity, TensorRT inference, and vehicle behavior still require hardware testing. This is not a precompiled image or a road-qualified release.
 
 ## Repository and release layout
 
 - **[jetson-trt](https://github.com/ryanafdahl/nrdr-OP-jetson-trt/tree/jetson-trt)** contains the implementation, installer, tests, and detailed documentation.
 - **main** is the repository landing page. Install the candidate described below rather than treating `main` as the device software.
-- The installer pins a specific source revision. Later commits to `jetson-trt` do not change what the linked installer initially installs.
+- The short-install branch in `ryanafdahl/openpilot` publishes a specific candidate. Later commits here do not automatically update that branch.
 - The historical bootstrap workflow is retired. It must not reset or force-push over subsequent work.
 
 | Component | Pinned revision |
 | --- | --- |
 | Installed source candidate | `97629ae3bd9f501777d4282c9cef2032c28e4efd` |
-| Public installer payload | `af6bf0afb069f0fdca9cd89c131496005bf9fe78` |
+| Short-install branch | `ryanafdahl/openpilot` → `nrdr-OP-jetson-trt` |
 | NRDR clean base | `b3366b5b56512805be8f0bf832b4981bfd958072` |
 | Zoompilot donor | `bcb49d740eb7f7181c2c4aba6de5177b03f88ba3` |
 | Jetlink client/server | `a01fcae9709cb4924854f0c52806849c62dec5c9` |
 
-The source and installer revisions differ intentionally: the installer was published after the source candidate and selects that candidate explicitly.
+The development repository and install branch have different names. The published candidate commit is the same in both.
 
 ## Install after a factory reset
 
-The preferred procedure for this repository is a fresh factory reset for every installation. Resetting removes the previous installation and local configuration; this route does not use a rollback checkout.
-
 1. Factory reset the comma 4.
-2. Reconnect it to Wi-Fi and complete setup until the custom software URL prompt.
-3. Enter the complete URL below.
-4. Keep the device powered and online while the installer downloads the source and the comma compiles it on first startup.
+2. Reconnect to Wi-Fi and choose custom software.
+3. Enter exactly:
 
 ```text
-https://raw.githubusercontent.com/ryanafdahl/nrdr-OP-jetson-trt/af6bf0afb069f0fdca9cd89c131496005bf9fe78/tools/install_jetson.py
+ryanafdahl/nrdr-OP-jetson-trt
 ```
 
-No SSH session or separate staging build is required for this route. Use the same procedure for reinstalls.
+4. Keep the device powered and online while software downloads and compiles on first startup.
 
-The installer checks for comma 4, **AGNOS 19.7**, Git LFS, passwordless sudo, and at least **12 GiB free**. It downloads the pinned source and Jetlink submodule and hydrates model files. It does not upgrade AGNOS; a factory reset should not be treated as an OS upgrade.
+No SSH, long URL, separate staging build, or rollback step is required.
 
-**Keep power connected during compilation.** The launcher stops if compilation fails instead of continuing into manager with inherited binaries.
+Comma's setup screen expands `username/branch` to its compiled fork installer. This entry installs branch `nrdr-OP-jetson-trt` from [ryanafdahl/openpilot](https://github.com/ryanafdahl/openpilot/tree/nrdr-OP-jetson-trt). That branch publishes the candidate from this development repository; it currently points to `97629ae3bd9f501777d4282c9cef2032c28e4efd`. It does not automatically track new development commits.
 
-This URL installs the pinned candidate listed above, not whichever commit happens to be newest on the branch. Anonymous payload download has been verified in CI; execution through the physical setup UI has not yet been tested.
+The equivalent full URL is:
 
-The old `installer.comma.ai/ryanafdahl/jetson-trt` URL is not the installer for this repository.
+```text
+https://installer.comma.ai/ryanafdahl/nrdr-OP-jetson-trt
+```
+
+The candidate targets comma 4 and AGNOS 19.7. The normal launcher handles OS compatibility and may run its AGNOS update procedure if the installed version differs. Keep stable power available through setup and compilation. A failed source build stops before manager starts.
+
+**Correction to earlier instructions:** comma 4's setup screen accepts compiled ELF installers. The earlier raw `install_jetson.py` URL is an SSH helper, not a valid setup-screen installer. Do not enter that Python URL after a factory reset.
 
 ## Jetson setup and first test
 
@@ -65,6 +68,13 @@ tmux capture-pane -p -S -2000 -t comma > /data/jetson-first-boot.txt
 Include the log, on-screen error, installed commit, AGNOS version, and Jetson model/software versions when reporting a failure. If the installer stops before replacing the checkout, fix the reported requirement instead of bypassing it. If compilation fails, do not create a `prebuilt` marker to skip the build.
 
 ## Change log
+
+### 2026-09-19 — Short-name factory-reset installation
+
+- Published the exact candidate as `ryanafdahl/openpilot:nrdr-OP-jetson-trt` so setup accepts `ryanafdahl/nrdr-OP-jetson-trt`.
+- Switched the setup instructions to comma's compiled fork installer.
+- Corrected the earlier Python URL recommendation: the setup screen rejects non-ELF downloads.
+- Retained the Python installer as an optional SSH tool; its checks and rollback behavior are not part of the standard fork installer.
 
 ### 2026-09-19 — Public experimental installer
 
@@ -109,7 +119,7 @@ Still unverified on hardware: first-boot compilation, setup-screen execution, US
 - [Installer implementation](https://github.com/ryanafdahl/nrdr-OP-jetson-trt/blob/jetson-trt/tools/install_jetson.py)
 - [Optional staging builder](https://github.com/ryanafdahl/nrdr-OP-jetson-trt/blob/jetson-trt/tools/jetson_staged_build.py)
 
-Develop against `jetson-trt` and review changes against the pinned clean base. The standard NRDR release publisher has publishing enabled by default; it is not the experimental install command above. Advancing the public installer requires explicitly updating and validating its source pin.
+Develop against `jetson-trt` and review changes against the pinned clean base. The standard NRDR release publisher has publishing enabled by default; it is not the experimental install command above. Advancing the short installation entry requires explicitly updating and validating the published branch in `ryanafdahl/openpilot`.
 
 ## Upstream history and licenses
 
