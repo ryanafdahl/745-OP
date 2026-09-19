@@ -2,6 +2,12 @@
 
 NRDR openpilot for **comma 4 + Jetson Orin Nano Super**, using USB Jetlink and TensorRT for large-model inference. The comma handles cameras and vehicle control.
 
+## Nightly compatibility update
+
+Selected changes from `nrdr-nightly` snapshot `e0bf1e63`: longitudinal door/seat-belt/parking-brake/gear checks and clearer speed-limit alerts. JetStream retains its current driver monitoring, disengagement safeguards, MADS activation, Jetlink, branding, and comma Connect uploads. This is a selective port on the clean base.
+
+[Update details and validation](https://github.com/ryanafdahl/nrdr-jetstream/blob/jetson-trt/docs/NIGHTLY_COMPATIBILITY.md). Drive measurements below were recorded before this update.
+
 ## Install
 
 Factory reset the comma, connect to Wi-Fi, choose **Custom Software**, and enter:
@@ -53,9 +59,9 @@ Use the installed container's `python3 -m jetlink.registry fetch <ref>` and `pre
 
 ## Changes and source
 
-**September 19:** renamed the project and comma 4 home-screen title to **NRDR JetStream**; integrated Jetlink; restored hash-verified native ONNX chunks; fixed lease cleanup and compilation failure handling; added the short installer; verified BMRLNAP inference; precached Cinque Terre in 30.5 s and verified it across three recordings.
+**September 19:** added the validated nightly compatibility update; renamed the project and comma 4 home-screen title to **NRDR JetStream**; integrated Jetlink; restored hash-verified native ONNX chunks; fixed lease cleanup and compilation failure handling; added the short installer; verified BMRLNAP inference; precached Cinque Terre in 30.5 s and verified it across three recordings.
 
-Development: [jetson-trt](https://github.com/ryanafdahl/nrdr-jetstream/tree/jetson-trt). Install candidate: `9abb37bf7e5b29e08566c077e7a319fa11b51b52`. Install branches are updated separately from development. [Validation](https://github.com/ryanafdahl/nrdr-jetstream/actions/runs/35460627418): 69 portable tests passed twice. [Installer checks](https://github.com/ryanafdahl/nrdr-jetstream/actions/runs/35461743304) passed.
+Development: [jetson-trt](https://github.com/ryanafdahl/nrdr-jetstream/tree/jetson-trt). Install candidate: `87e530f8914949b28e1fa00933b3297b7d0ee346`. Install branches are updated separately from development. [Validation](https://github.com/ryanafdahl/nrdr-jetstream/actions/runs/35476805824): 75 portable tests passed twice for this update. [Installer checks](https://github.com/ryanafdahl/nrdr-jetstream/actions/runs/35461743304) passed.
 
 [Install guide](https://github.com/ryanafdahl/nrdr-jetstream/blob/jetson-trt/docs/JETSON_INSTALL.md) · [Hardware checks](https://github.com/ryanafdahl/nrdr-jetstream/blob/jetson-trt/docs/COMMA4_JETSON_PARKED_TEST.md)
 
