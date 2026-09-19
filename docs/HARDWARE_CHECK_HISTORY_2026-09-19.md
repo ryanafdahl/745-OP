@@ -97,11 +97,11 @@ Analyzed all **16 full-rate log segments**: **14 min 58 s**, approximately **7.8
 - **Controls:** lateral-active time **12 min 14 s**. Temporary steering-fault flags totaled **22.96 s** across 41 episodes, including **19.18 s while moving**. Cause remains unresolved; sustained inference does not mean fault-free steering.
 - Calibration messages were all calibrated. Startup communication/localization events and an initial native-model timing outlier were recorded.
 
-[Detailed analysis, averages, and limitations](https://github.com/ryanafdahl/nrdr-jetson/blob/jetson-trt/docs/DRIVE_RECAP_2026-09-19.md). Raw logs/video remain private; no visual driving review or fully offline cold-start qualification has been completed.
+[Detailed analysis, averages, and limitations](https://github.com/ryanafdahl/nrdr-jetstream/blob/jetson-trt/docs/DRIVE_RECAP_2026-09-19.md). Raw logs/video remain private; no visual driving review or fully offline cold-start qualification has been completed.
 
 ## Source and validation
 
-Development lives on [`jetson-trt`](https://github.com/ryanafdahl/nrdr-jetson/tree/jetson-trt); `main` is the landing page. Install branches are pinned candidates and **do not automatically follow development**.
+Development lives on [`jetson-trt`](https://github.com/ryanafdahl/nrdr-jetstream/tree/jetson-trt); `main` is the landing page. Install branches are pinned candidates and **do not automatically follow development**.
 
 | Component | Revision |
 | --- | --- |
@@ -110,7 +110,7 @@ Development lives on [`jetson-trt`](https://github.com/ryanafdahl/nrdr-jetson/tr
 | Zoompilot donor | `bcb49d740eb7f7181c2c4aba6de5177b03f88ba3` |
 | Jetlink source pin | `a01fcae9709cb4924854f0c52806849c62dec5c9` |
 
-[Source validation](https://github.com/ryanafdahl/nrdr-jetson/actions/runs/35460627418) passed **69 portable tests twice**, provenance checks, and model integrity checks. [Install verification](https://github.com/ryanafdahl/nrdr-jetson/actions/runs/35461743304) passed compiled-installer and anonymous-clone model checks.
+[Source validation](https://github.com/ryanafdahl/nrdr-jetstream/actions/runs/35460627418) passed **69 portable tests twice**, provenance checks, and model integrity checks. [Install verification](https://github.com/ryanafdahl/nrdr-jetstream/actions/runs/35461743304) passed compiled-installer and anonymous-clone model checks.
 
 ## Change notes
 
@@ -123,6 +123,6 @@ Development lives on [`jetson-trt`](https://github.com/ryanafdahl/nrdr-jetson/tr
 - **Logs:** comma: `tmux capture-pane -p -S -2000 -t comma`; Jetson: `sudo journalctl -u jetlink-server -b --no-pager`.
 - Keep controls disabled during parked diagnostics. EPS flashing is not a requirement for this port.
 
-[Installation guide](https://github.com/ryanafdahl/nrdr-jetson/blob/jetson-trt/docs/JETSON_INSTALL.md) · [Hardware checks / optional staging](https://github.com/ryanafdahl/nrdr-jetson/blob/jetson-trt/docs/COMMA4_JETSON_PARKED_TEST.md)
+[Installation guide](https://github.com/ryanafdahl/nrdr-jetstream/blob/jetson-trt/docs/JETSON_INSTALL.md) · [Hardware checks / optional staging](https://github.com/ryanafdahl/nrdr-jetstream/blob/jetson-trt/docs/COMMA4_JETSON_PARKED_TEST.md)
 
-Built on NRDR, comma.ai, sunnypilot, Zoompilot, and Jetlink. See [LICENSE](https://github.com/ryanafdahl/nrdr-jetson/blob/jetson-trt/LICENSE), [LICENSE.md](https://github.com/ryanafdahl/nrdr-jetson/blob/jetson-trt/LICENSE.md), and component notices.
+Built on NRDR, comma.ai, sunnypilot, Zoompilot, and Jetlink. See [LICENSE](https://github.com/ryanafdahl/nrdr-jetstream/blob/jetson-trt/LICENSE), [LICENSE.md](https://github.com/ryanafdahl/nrdr-jetstream/blob/jetson-trt/LICENSE.md), and component notices.

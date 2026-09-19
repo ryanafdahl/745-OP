@@ -1,6 +1,6 @@
 # Comma 4: factory-reset installation
 
-The development repository is now [ryanafdahl/nrdr-jetson](https://github.com/ryanafdahl/nrdr-jetson). The custom-software entry below uses the new `nrdr-jetson` branch in `ryanafdahl/openpilot`; no reinstall is needed solely for the rename.
+The development repository is now [ryanafdahl/nrdr-jetstream](https://github.com/ryanafdahl/nrdr-jetstream). The custom-software entry below uses the new `nrdr-jetstream` branch in `ryanafdahl/openpilot`; no reinstall is needed solely for the rename.
 
 ## Install after a factory reset
 
@@ -9,21 +9,21 @@ The development repository is now [ryanafdahl/nrdr-jetson](https://github.com/ry
 3. Enter exactly:
 
 ```text
-ryanafdahl/nrdr-jetson
+ryanafdahl/nrdr-jetstream
 ```
 
 4. Keep the device powered and online while software downloads and compiles on first startup.
 
 No SSH, long URL, separate staging build, or rollback step is required.
 
-The new `nrdr-jetson` install branch and legacy `nrdr-OP-jetson-trt` / `nrdr-op-jetson-trt` branches point to the same candidate. Use `ryanafdahl/nrdr-jetson` for new installations. A misspelled or nonexistent branch can misleadingly produce “incompatible openpilot version”; that message alone does not prove an OS mismatch.
+The new `nrdr-jetstream` install branch and legacy `nrdr-jetson`, `nrdr-OP-jetson-trt` / `nrdr-op-jetson-trt` branches point to the same candidate. Use `ryanafdahl/nrdr-jetstream` for new installations. A misspelled or nonexistent branch can misleadingly produce “incompatible openpilot version”; that message alone does not prove an OS mismatch.
 
-Comma's setup screen expands `username/branch` to its compiled fork installer. This entry installs branch `nrdr-jetson` from [ryanafdahl/openpilot](https://github.com/ryanafdahl/openpilot/tree/nrdr-jetson). That branch publishes the candidate from this development repository; it currently points to `b6756fe80c3df2e0bbfde3c512d29e02cf1127b5`. It does not automatically track new development commits.
+Comma's setup screen expands `username/branch` to its compiled fork installer. This entry installs branch `nrdr-jetstream` from [ryanafdahl/openpilot](https://github.com/ryanafdahl/openpilot/tree/nrdr-jetstream). That branch publishes the candidate from this development repository; it currently points to `9abb37bf7e5b29e08566c077e7a319fa11b51b52`. It does not automatically track new development commits.
 
 The equivalent full URL is:
 
 ```text
-https://installer.comma.ai/ryanafdahl/nrdr-jetson
+https://installer.comma.ai/ryanafdahl/nrdr-jetstream
 ```
 
 The candidate targets comma 4 and AGNOS 19.7. The normal launcher handles OS compatibility and may run its AGNOS update procedure if the installed version differs. Keep stable power available through setup and compilation. A failed source build stops before manager starts.
@@ -35,7 +35,7 @@ The candidate targets comma 4 and AGNOS 19.7. The normal launcher handles OS com
 
 The installer installs comma-side software. Configure the Jetson separately using the [pinned Jetlink reference](https://github.com/zoompilot/jetlink/blob/a01fcae9709cb4924854f0c52806849c62dec5c9/docs/jetson.md). Fresh Jetlink settings are opt-in.
 
-For the first parked test, verify boot, camera/UI operation, and native model output. Keep controls disabled and do not drive; Park alone does not prevent steering actuation. The user reported successful native compilation and boot on September 19, 2026. Live Jetson inference still requires hardware validation.
+For the first parked test, verify boot, camera/UI operation, and native model output. Keep controls disabled and do not drive; Park alone does not prevent steering actuation. The user reported successful native compilation and boot on September 19, 2026. BMRLNAP and Cinque Terre inference have been recorded; see the README for current measurements.
 
 ## Troubleshooting
 
