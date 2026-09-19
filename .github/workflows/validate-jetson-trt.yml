@@ -55,6 +55,7 @@ jobs:
           python3 -m pip freeze > audit-output/test-dependencies.txt
           for pass in 1 2; do
             python3 -m unittest -v \
+              tools.test_nrdr_nightly_compat \
               tools.test_jetson_model_sources \
               tools.test_install_jetson \
               tools.test_jetson_staged_build \

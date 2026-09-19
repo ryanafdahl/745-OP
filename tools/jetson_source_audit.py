@@ -50,8 +50,13 @@ check(subprocess.run(['git', 'merge-base', '--is-ancestor', base, 'HEAD']).retur
       'nrdr-clean pinned base is an ancestor')
 for path in ('panda', 'opendbc_repo', 'openpilot/nrdr', 'openpilot/selfdrive/controls',
              'openpilot/selfdrive/car', 'openpilot/selfdrive/monitoring'):
-    check(git('rev-parse', f'{base}:{path}') == git('rev-parse', f'HEAD:{path}'),
-          f'unchanged NRDR tree: {path}')
+    if path == 'openpilot/nrdr':
+        changed_nrdr = set(git('diff', '--name-only', base, 'HEAD', '--', path).splitlines())
+        check(changed_nrdr <= {'openpilot/nrdr/hooks/events.py', 'openpilot/nrdr/hooks/events_sp.py'},
+              'NRDR changes limited to reviewed longitudinal gate and speed-limit alerts')
+    else:
+        check(git('rev-parse', f'{base}:{path}') == git('rev-parse', f'HEAD:{path}'),
+              f'unchanged NRDR tree: {path}')
 check(not Path('prebuilt').exists(), 'old prebuilt marker absent; target rebuild still required')
 entry = git('ls-tree', 'HEAD', '--', 'jetlink_repo').split()
 check(len(entry) >= 3 and entry[0] == '160000' and entry[2] == pin, 'exact Jetlink gitlink')

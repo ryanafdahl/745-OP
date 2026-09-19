@@ -18,4 +18,16 @@ def speed_limit_pre_active_alert(CP, CS, sm, metric, soft_disable_time, personal
 
 
 def apply_events(events, event_name) -> None:
+  for name, detail in (
+    (event_name.speedLimitActive, "The new speed limit has been applied."),
+    (event_name.speedLimitPending, "The last known speed limit has been applied."),
+  ):
+    events[name] = {
+      ET.WARNING: Alert(
+        "Automatically Changing Max Speed", detail,
+        log.SelfdriveState.AlertStatus.normal, log.SelfdriveState.AlertSize.mid,
+        Priority.LOW, car.CarControl.HUDControl.VisualAlert.none,
+        custom.SelfdriveStateSP.AudibleAlert.promptSingleHigh, 5.,
+      ),
+    }
   events[event_name.speedLimitPreActive] = {ET.WARNING: speed_limit_pre_active_alert}

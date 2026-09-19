@@ -15,4 +15,5 @@ def is_drivable_gear(gear: int, platform_gears: tuple[int, ...], brand: str = ""
 
 
 def allow_longitudinal(CS, platform_gears: tuple[int, ...], brand: str) -> bool:
-  return True
+  safe_state = not (CS.doorOpen or CS.seatbeltUnlatched or CS.parkingBrake)
+  return safe_state and is_drivable_gear(CS.gearShifter, platform_gears, brand)
