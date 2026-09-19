@@ -24,22 +24,24 @@ A flashing GPU icon can mean download, preparation, or connection waiting. Confi
 
 ## Latest drive · September 19, 2026
 
-**Cinque Terre V2 ran successfully after precaching**, verified from all **19 full-rate segments**, 21:16:23–21:34:59 UTC.
+**Cinque Terre V2 verified across all 9 full-rate segments**, 22:12:10–22:20:17 UTC. This recording includes substantial parked time.
 
 | Measurement | Result |
 | --- | --- |
-| Drive | 18:36 · 14.85 km / 9.23 mi |
-| Large-model use | 21,175 / 22,175 messages (95.49%); all large-model messages valid |
-| Startup | Native model for ~50 s, then continuous large-model use |
-| Model execution | Mean 40.12 ms · p95 42.02 ms · max 70.81 ms |
-| Telemetry | 1,004 readings; all reported `dead=false` |
-| Temperature | Mean 52.13°C · peak 64.5°C |
-| Power / cooling | Mean 13.08 W · 1,633 RPM |
-| GPU | Mean 77.14% load · 1,020 MHz |
+| Recording / movement | 8:07 total · 2:08 moving · 0.844 km / 0.525 mi |
+| Large-model use | 5,601 / 9,595 messages (58.37%); all large-model messages valid |
+| Connection | ~200 s waiting for Jetson, then continuous large-model use |
+| Model execution | Mean 33.78 ms · p95 36.93 ms · max 101.25 ms |
+| Telemetry | 267 readings; all reported `dead=false` |
+| Temperature | Mean 62.04°C · peak 66.0°C |
+| Power / cooling | Mean 13.22 W · 2,682 RPM |
+| GPU | Mean 76.63% load · 1,020 MHz |
 
-Temporary steering-fault flags totaled **12.17 s** across 28 episodes, including 11.19 s while moving; cause remains unresolved. Fully offline startup remains to be verified.
+One 115 ms model-message gap occurred while stationary, with brief communication/localization events and no fallback. Temporary steering-fault flags totaled **8.02 s** across 17 episodes (7.15 s moving); cause remains unresolved.
 
-[Latest drive analysis](https://github.com/ryanafdahl/nrdr-jetson/blob/jetson-trt/docs/CINQUE_TERRE_DRIVE_2026-09-19.md) includes timing, controls, capture details, and comparison with the [earlier BMRLNAP drive](https://github.com/ryanafdahl/nrdr-jetson/blob/jetson-trt/docs/DRIVE_RECAP_2026-09-19.md). [Check history](https://github.com/ryanafdahl/nrdr-jetson/blob/jetson-trt/docs/HARDWARE_CHECK_HISTORY_2026-09-19.md) retains UTC windows and pooled averages. Results stay separate by model; raw logs/video remain private.
+**Both Cinque Terre recordings:** 26,776 large-model messages; sample-weighted execution **38.80 ms**. Across 1,271 telemetry readings: **54.21°C, 13.11 W, 1,853 RPM**. Keep these separate from BMRLNAP results.
+
+[Latest analysis](https://github.com/ryanafdahl/nrdr-jetson/blob/jetson-trt/docs/CINQUE_TERRE_DRIVE_2026-09-19_2212.md) · [Previous drive](https://github.com/ryanafdahl/nrdr-jetson/blob/jetson-trt/docs/CINQUE_TERRE_DRIVE_2026-09-19.md) · [Check history](https://github.com/ryanafdahl/nrdr-jetson/blob/jetson-trt/docs/HARDWARE_CHECK_HISTORY_2026-09-19.md). Raw logs/video remain private; fully offline startup awaits verification.
 
 ## Precache for the car
 
@@ -51,7 +53,7 @@ Use the installed container's `python3 -m jetlink.registry fetch <ref>` and `pre
 
 ## Changes and source
 
-**September 19:** integrated Jetlink; restored hash-verified native ONNX chunks; fixed lease cleanup and compilation failure handling; added the short installer; verified BMRLNAP inference; precached Cinque Terre in 30.5 s and verified it across the latest drive.
+**September 19:** integrated Jetlink; restored hash-verified native ONNX chunks; fixed lease cleanup and compilation failure handling; added the short installer; verified BMRLNAP inference; precached Cinque Terre in 30.5 s and verified it across two recordings.
 
 Development: [jetson-trt](https://github.com/ryanafdahl/nrdr-jetson/tree/jetson-trt). Install candidate: `b6756fe80c3df2e0bbfde3c512d29e02cf1127b5`. Install branches are updated separately from development. [Validation](https://github.com/ryanafdahl/nrdr-jetson/actions/runs/35460627418): 69 portable tests passed twice. [Installer checks](https://github.com/ryanafdahl/nrdr-jetson/actions/runs/35461743304) passed.
 
