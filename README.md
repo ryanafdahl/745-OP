@@ -1,4 +1,4 @@
-# NRDR Openpilot — Jetson TensorRT
+# nrdr-jetson — NRDR Openpilot with Jetson TensorRT
 
 Experimental Jetson acceleration port for **comma 4**, based on NRDR's `nrdr-clean` source. Jetlink connects the comma-side model pipeline to a separately configured NVIDIA Jetson running TensorRT. The native model path remains available as the fallback.
 
@@ -6,7 +6,7 @@ Experimental Jetson acceleration port for **comma 4**, based on NRDR's `nrdr-cle
 
 ## Repository and release layout
 
-- **[jetson-trt](https://github.com/ryanafdahl/nrdr-OP-jetson-trt/tree/jetson-trt)** contains the implementation, installer, tests, and detailed documentation.
+- **[jetson-trt](https://github.com/ryanafdahl/nrdr-jetson/tree/jetson-trt)** contains the implementation, installer, tests, and detailed documentation.
 - **main** is the repository landing page. Install the candidate described below rather than treating `main` as the device software.
 - The short-install branch in `ryanafdahl/openpilot` publishes a specific candidate. Later commits here do not automatically update that branch.
 - The historical bootstrap workflow is retired. It must not reset or force-push over subsequent work.
@@ -73,11 +73,16 @@ Include the log, on-screen error, installed commit, AGNOS version, and Jetson mo
 
 ## Change log
 
+### 2026-09-19 — Repository renamed to nrdr-jetson
+
+- Renamed the development repository to `ryanafdahl/nrdr-jetson` and updated documentation, source download, and CI URLs.
+- The existing comma custom-software entry remains `ryanafdahl/nrdr-op-jetson-trt`; it uses a separate branch in `ryanafdahl/openpilot`. The repository rename does not create a new install alias or require reinstalling a working device.
+
 ### 2026-09-19 — Restore the missing native model build input
 
 - Fixed the first-boot `FileNotFoundError` in `modeld/SConscript`: the prebuilt NRDR base had stripped `driving_supercombo.onnx`.
 - Restored the 60,881,999-byte model from NRDR source revision `30485aaab876e0a66776eddfd652444f1801ceca`, verified against its published SHA-256, and stored it in two Git-friendly chunks.
-- Added mandatory input-integrity validation and regression tests; 69 tests passed twice. The next native build still requires device verification.
+- Added mandatory input-integrity validation and regression tests; 69 tests passed twice. The user subsequently reported successful compilation and boot on comma 4; live Jetson inference remains unverified.
 - Published the fix to both install-name variants. Reinstall with the same lowercase short entry to receive it.
 
 ### 2026-09-19 — Short-name factory-reset installation
@@ -94,7 +99,7 @@ Include the log, on-screen error, installed commit, AGNOS version, and Jetson mo
 - Preserved the existing checkout and launcher, with a generated rollback command.
 - Added tests for fresh installation, backup preservation, failed-swap recovery, and platform rejection.
 - Added CI verification that the public installer payload matches the reviewed file.
-- [Fixed first-boot startup](https://github.com/ryanafdahl/nrdr-OP-jetson-trt/commit/97629ae3bd9f501777d4282c9cef2032c28e4efd) so a failed build cannot proceed into manager.
+- [Fixed first-boot startup](https://github.com/ryanafdahl/nrdr-jetson/commit/97629ae3bd9f501777d4282c9cef2032c28e4efd) so a failed build cannot proceed into manager.
 - Published installation, recovery, and test instructions.
 
 ### 2026-09-19 — Build preparation and connection cleanup
@@ -102,7 +107,7 @@ Include the log, on-screen error, installed commit, AGNOS version, and Jetson mo
 - Added optional comma 4 staging-build tooling with revision and environment checks.
 - Added build logs, native-binding/model-asset checks, warp checks, and artifact hashes.
 - Added guards against staging paths overlapping the installed software.
-- [Fixed failed lease-socket cleanup](https://github.com/ryanafdahl/nrdr-OP-jetson-trt/commit/8404f553ed3eb632a0d1b414543cd77508146edf), including failed connect, bind, listen, and timeout setup, with eight regression tests.
+- [Fixed failed lease-socket cleanup](https://github.com/ryanafdahl/nrdr-jetson/commit/8404f553ed3eb632a0d1b414543cd77508146edf), including failed connect, bind, listen, and timeout setup, with eight regression tests.
 
 ### 2026-09-19 — Source integration and audit baseline
 
@@ -116,7 +121,7 @@ These notes describe this repository's Jetson integration. They are not a comple
 
 ## Validation status
 
-The [installer validation run](https://github.com/ryanafdahl/nrdr-OP-jetson-trt/actions/runs/35459097462) passed **64 portable tests in each of two passes**, along with source checks and anonymous installer download verification.
+The [installer validation run](https://github.com/ryanafdahl/nrdr-jetson/actions/runs/35459097462) passed **64 portable tests in each of two passes**, along with source checks and anonymous installer download verification.
 
 The audit checks provenance, selected protected NRDR subtree equality, parameter preservation, Jetlink pinning, opt-in behavior, syntax, and local source dependencies. Filesystem transaction tests exercise installer recovery. These checks do not establish a successful comma 4 build or live TensorRT inference.
 
@@ -126,16 +131,16 @@ Still unverified on hardware: USB enumeration, live model outputs and timing, re
 
 ## Documentation and development
 
-- [Factory-reset installation guide](https://github.com/ryanafdahl/nrdr-OP-jetson-trt/blob/jetson-trt/docs/JETSON_INSTALL.md)
-- [Hardware validation and optional staging build](https://github.com/ryanafdahl/nrdr-OP-jetson-trt/blob/jetson-trt/docs/COMMA4_JETSON_PARKED_TEST.md)
-- [Source-audit workflow](https://github.com/ryanafdahl/nrdr-OP-jetson-trt/blob/jetson-trt/.github/workflows/validate-jetson-trt.yml)
-- [Installer implementation](https://github.com/ryanafdahl/nrdr-OP-jetson-trt/blob/jetson-trt/tools/install_jetson.py)
-- [Optional staging builder](https://github.com/ryanafdahl/nrdr-OP-jetson-trt/blob/jetson-trt/tools/jetson_staged_build.py)
+- [Factory-reset installation guide](https://github.com/ryanafdahl/nrdr-jetson/blob/jetson-trt/docs/JETSON_INSTALL.md)
+- [Hardware validation and optional staging build](https://github.com/ryanafdahl/nrdr-jetson/blob/jetson-trt/docs/COMMA4_JETSON_PARKED_TEST.md)
+- [Source-audit workflow](https://github.com/ryanafdahl/nrdr-jetson/blob/jetson-trt/.github/workflows/validate-jetson-trt.yml)
+- [Installer implementation](https://github.com/ryanafdahl/nrdr-jetson/blob/jetson-trt/tools/install_jetson.py)
+- [Optional staging builder](https://github.com/ryanafdahl/nrdr-jetson/blob/jetson-trt/tools/jetson_staged_build.py)
 
 Develop against `jetson-trt` and review changes against the pinned clean base. The standard NRDR release publisher has publishing enabled by default; it is not the experimental install command above. Advancing the short installation entry requires explicitly updating and validating the published branch in `ryanafdahl/openpilot`.
 
 ## Upstream history and licenses
 
-This project builds on NRDR, comma.ai openpilot, Sunnypilot, Zoompilot, and Jetlink. The inherited Honda/PTC tuning README is retained in [repository history](https://github.com/ryanafdahl/nrdr-OP-jetson-trt/blob/de524fd61003cc2e69368b9d7f8069761146e614/README.md); it is not the installation procedure for this Jetson candidate.
+This project builds on NRDR, comma.ai openpilot, Sunnypilot, Zoompilot, and Jetlink. The inherited Honda/PTC tuning README is retained in [repository history](https://github.com/ryanafdahl/nrdr-jetson/blob/de524fd61003cc2e69368b9d7f8069761146e614/README.md); it is not the installation procedure for this Jetson candidate.
 
-See [LICENSE](https://github.com/ryanafdahl/nrdr-OP-jetson-trt/blob/jetson-trt/LICENSE), [LICENSE.md](https://github.com/ryanafdahl/nrdr-OP-jetson-trt/blob/jetson-trt/LICENSE.md), and the notices in individual components.
+See [LICENSE](https://github.com/ryanafdahl/nrdr-jetson/blob/jetson-trt/LICENSE), [LICENSE.md](https://github.com/ryanafdahl/nrdr-jetson/blob/jetson-trt/LICENSE.md), and the notices in individual components.
