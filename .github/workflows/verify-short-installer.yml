@@ -27,3 +27,19 @@ jobs:
           print("Verified installer ELF, repository, and branch.")
           print("SHA256:", hashlib.sha256(data).hexdigest())
           PY
+
+      - name: Diagnose AGNOS setup compatibility responses
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import urllib.request, urllib.error, json
+          for version in ("12.8", "14.1", "15.1", "16.1", "17.1", "18.1", "19.3", "19.7"):
+            url = "https://installer.comma.ai/ryanafdahl/nrdr-OP-jetson-trt"
+            req = urllib.request.Request(url, headers={"User-Agent": "AGNOSSetup-" + version, "X-openpilot-device-type": "mici"})
+            try:
+              with urllib.request.urlopen(req, timeout=30) as response:
+                data = response.read(256)
+                print(json.dumps({"agnos":version,"status":response.status,"elf":data.startswith(b"\x7fELF"),"body":None if data.startswith(b"\x7fELF") else data.decode("utf8","replace")}))
+            except urllib.error.HTTPError as exc:
+              print(json.dumps({"agnos":version,"status":exc.code,"body":exc.read(1000).decode("utf8","replace")}))
+          PY
