@@ -70,6 +70,7 @@ Safety reference: https://docs.comma.ai/SAFETY/
 Use the full commit SHA from a **successful source-audit run containing this tool**, with GitHub authentication already configured for this private repository. Do not embed credentials in the clone URL. Replace the value of `REV` below:
 
 ```bash
+set -euo pipefail
 REV=REPLACE_WITH_REVIEWED_40_CHARACTER_COMMIT_SHA
 STAGE="/data/jetson-trt-stage-$REV"
 GIT_LFS_SKIP_SMUDGE=1 git clone --no-checkout https://github.com/ryanafdahl/nrdr-OP-jetson-trt.git "$STAGE"
