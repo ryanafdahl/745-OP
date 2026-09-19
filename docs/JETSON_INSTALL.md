@@ -1,49 +1,44 @@
-# Factory-reset installation: comma 4 + Jetson TRT
+# Comma 4: factory-reset installation
 
-Use a factory reset before every installation of this experimental candidate. This procedure does not require SSH, a staging build, or rollback. A factory reset removes the previous installation and local configuration.
-
-## Installation
+## Install after a factory reset
 
 1. Factory reset the comma 4.
-2. Reconnect to Wi-Fi and proceed to the custom software URL prompt.
-3. Enter this full URL:
+2. Reconnect to Wi-Fi and choose custom software.
+3. Enter exactly:
 
 ```text
-https://raw.githubusercontent.com/ryanafdahl/nrdr-OP-jetson-trt/af6bf0afb069f0fdca9cd89c131496005bf9fe78/tools/install_jetson.py
+ryanafdahl/nrdr-OP-jetson-trt
 ```
 
-4. Keep the comma powered and online during the download and first-startup compilation.
-5. Complete the normal setup and calibration prompts after installation.
+4. Keep the device powered and online while software downloads and compiles on first startup.
 
-The repository is public; no GitHub login is required to download this installer. The URL selects this exact repository rather than an account's differently named `openpilot` repository.
+No SSH, long URL, separate staging build, or rollback step is required.
 
-## Candidate and requirements
+Comma's setup screen expands `username/branch` to its compiled fork installer. This entry installs branch `nrdr-OP-jetson-trt` from [ryanafdahl/openpilot](https://github.com/ryanafdahl/openpilot/tree/nrdr-OP-jetson-trt). That branch publishes the candidate from this development repository; it currently points to `97629ae3bd9f501777d4282c9cef2032c28e4efd`. It does not automatically track new development commits.
 
-- Installed source: `97629ae3bd9f501777d4282c9cef2032c28e4efd`.
-- Installer payload: `af6bf0afb069f0fdca9cd89c131496005bf9fe78`.
-- Target: comma 4 on AGNOS 19.7.
-- Other installer checks: Git LFS, passwordless sudo, and at least 12 GiB free.
+The equivalent full URL is:
 
-The installer checks requirements automatically. It does not upgrade AGNOS, and resetting the device should not be treated as an OS upgrade. Reusing this URL reinstalls the same pinned candidate; it does not select the latest branch commit.
+```text
+https://installer.comma.ai/ryanafdahl/nrdr-OP-jetson-trt
+```
 
-This is a source installation, not a precompiled image. The normal launcher compiles on the comma. If compilation fails, manager will not start. Do not create a `prebuilt` marker to bypass that failure.
+The candidate targets comma 4 and AGNOS 19.7. The normal launcher handles OS compatibility and may run its AGNOS update procedure if the installed version differs. Keep stable power available through setup and compilation. A failed source build stops before manager starts.
+
+**Correction to earlier instructions:** comma 4's setup screen accepts compiled ELF installers. The earlier raw `install_jetson.py` URL is an SSH helper, not a valid setup-screen installer. Do not enter that Python URL after a factory reset.
+
 
 ## Jetson and parked testing
 
-The comma installer does not install the Jetson server or change Jetson firmware. Use the matching [Jetlink server setup reference](https://github.com/zoompilot/jetlink/blob/a01fcae9709cb4924854f0c52806849c62dec5c9/docs/jetson.md). Jetlink is opt-in; fresh settings do not enable it by default.
+The installer installs comma-side software. Configure the Jetson separately using the [pinned Jetlink reference](https://github.com/zoompilot/jetlink/blob/a01fcae9709cb4924854f0c52806849c62dec5c9/docs/jetson.md). Fresh Jetlink settings are opt-in.
 
-For the first parked test, check boot, camera/UI operation, and the native model path. Keep controls disabled and do not drive; Park alone does not prevent steering actuation.
+For the first parked test, verify boot, camera/UI operation, and native model output. Keep controls disabled and do not drive; Park alone does not prevent steering actuation. Native compilation and live Jetson inference still require hardware validation.
 
-## If installation fails
+## Troubleshooting
 
-Record the error shown on the device. If SSH is available, capture first-startup output:
+Record any on-screen error. If SSH is available after installation, capture startup output:
 
 ```bash
 tmux capture-pane -p -S -2000 -t comma > /data/jetson-first-boot.txt
 ```
 
-Provide the error or log to diagnose the failure. For another clean installation, factory reset again and reuse the URL. There is no rollback step in this procedure.
-
-## Verification limits
-
-CI verified anonymous installer download and 64 portable tests in each of two passes. Physical setup-screen execution, native comma compilation, and live Jetson inference remain unverified. See [the hardware validation guide](COMMA4_JETSON_PARKED_TEST.md) for the remaining checks.
+To reinstall, factory reset and use the same short entry. Do not add a `prebuilt` marker to bypass compilation failures. See [the validation guide](COMMA4_JETSON_PARKED_TEST.md) for hardware checks.
