@@ -1,0 +1,107 @@
+name: Jetson TRT source audit (not hardware qualification)
+
+on:
+  push:
+    branches: [jetson-trt]
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      revision:
+        description: Exact target commit to audit
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: jetson-source-audit-${{ inputs.revision || github.ref }}
+  cancel-in-progress: true
+
+env:
+  GIT_LFS_SKIP_SMUDGE: '1'
+  NRDR_BASE: b3366b5b56512805be8f0bf832b4981bfd958072
+  JETLINK_PIN: a01fcae9709cb4924854f0c52806849c62dec5c9
+
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout the exact commit under review
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.revision || github.sha }}
+          fetch-depth: 0
+          submodules: recursive
+          persist-credentials: false
+      - name: Prepare isolated Python test dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -c 'import sys; assert sys.version_info[:2] == (3, 12), sys.version'
+          python3 -m venv "$RUNNER_TEMP/jetson-audit-venv"
+          "$RUNNER_TEMP/jetson-audit-venv/bin/python" -m pip install --only-binary=:all: numpy==2.1.3 pyzmq==26.2.1 pycapnp==2.1.0 zstandard==0.23.0
+          echo "$RUNNER_TEMP/jetson-audit-venv/bin" >> "$GITHUB_PATH"
+          echo "PYTHONPATH=$GITHUB_WORKSPACE:$GITHUB_WORKSPACE/jetlink_repo" >> "$GITHUB_ENV"
+      - name: Audit provenance, syntax, opt-in, and source dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p audit-output
+          python3 tools/jetson_source_audit.py | tee audit-output/source-audit.txt
+          python3 tools/check_jetson_model_sources.py | tee audit-output/model-inputs.txt
+      - name: Run portable tests twice with real dependencies
+        if: ${{ !cancelled() }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p audit-output
+          python3 -c 'import numpy, zmq, capnp, zstandard, jetlink.transport.ffs; print("Test imports available")'
+          python3 -m pip freeze > audit-output/test-dependencies.txt
+          for pass in 1 2; do
+            python3 -m unittest -v \
+              tools.test_nrdr_nightly_compat \
+              tools.test_jetson_model_sources \
+              tools.test_install_jetson \
+              tools.test_jetson_staged_build \
+              openpilot.sunnypilot.accelerators.jetlink.tests.test_gadget \
+              openpilot.sunnypilot.accelerators.jetlink.tests.test_lending \
+              openpilot.sunnypilot.accelerators.jetlink.tests.test_lending_cleanup \
+              openpilot.sunnypilot.accelerators.jetlink.tests.test_lfs \
+              openpilot.sunnypilot.accelerators.jetlink.tests.test_vmtune \
+              2>&1 | tee "audit-output/portable-tests-pass${pass}.txt"
+          done
+      - name: Verify public installer payload and pinned source
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 "https://raw.githubusercontent.com/ryanafdahl/nrdr-jetstream/${{ inputs.revision || github.sha }}/tools/install_jetson.py" -o "$RUNNER_TEMP/public-installer.py"
+          cmp tools/install_jetson.py "$RUNNER_TEMP/public-installer.py"
+          python3 -c 'from tools.install_jetson import REVISION; import subprocess; subprocess.run(["git", "merge-base", "--is-ancestor", REVISION, "HEAD"], check=True)'
+      - name: Capture exact source revision and diff
+        if: ${{ !cancelled() }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p audit-output
+          git rev-parse HEAD > audit-output/reviewed-commit.txt
+          git diff --no-renames --stat "$NRDR_BASE" HEAD > audit-output/change-stat.txt
+          git diff --no-renames --binary "$NRDR_BASE" HEAD > audit-output/port.patch
+          git ls-tree -r HEAD > audit-output/tree.txt
+          cp openpilot/sunnypilot/accelerators/jetlink/lending.py audit-output/reviewed-lending.py
+          cp openpilot/sunnypilot/accelerators/jetlink/tests/test_lending_cleanup.py audit-output/reviewed-lending-tests.py
+      - name: Save audit evidence, not an installable release
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: jetson-source-audit-${{ inputs.revision || github.sha }}
+          path: audit-output/
+          retention-days: 7
+          if-no-files-found: error
+      - name: Record qualification limits
+        if: always()
+        run: |
+          echo '## Experimental source installer - hardware validation remains pending' >> "$GITHUB_STEP_SUMMARY"
+          echo "Reviewed commit: $GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
+          echo 'No comma-four build, GPU inference, USB enumeration, CAN isolation, or physical Jetson test was performed by this runner.' >> "$GITHUB_STEP_SUMMARY"

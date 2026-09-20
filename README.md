@@ -2,6 +2,10 @@
 
 NRDR openpilot for **comma 4 + Jetson Orin Nano Super**, using USB Jetlink and TensorRT for large-model inference. The comma handles cameras and vehicle control.
 
+## Automatic nightly updates
+
+[Daily GitHub Actions checks](https://github.com/ryanafdahl/nrdr-jetstream/actions/workflows/sync-nrdr-nightly.yml) track **NRDR `nrdr-nightly`** at **10:23 UTC** and commit compatible changes to `jetson-trt`. Customized/protected files are listed for manual integration, and the source audit runs after each update. The comma installer stays pinned. [How it works](https://github.com/ryanafdahl/nrdr-jetstream/blob/jetson-trt/docs/AUTOMATIC_UPDATES.md).
+
 ## Nightly compatibility update
 
 Selected changes from `nrdr-nightly` snapshot `e0bf1e63`: longitudinal door/seat-belt/parking-brake/gear checks and clearer speed-limit alerts. JetStream retains its current driver monitoring, disengagement safeguards, MADS activation, Jetlink, branding, and comma Connect uploads. This is a selective port on the clean base.
