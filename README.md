@@ -32,7 +32,11 @@ Keep power and internet connected through installation and first-boot compilatio
 
 A flashing GPU icon can mean download, preparation, or connection waiting. Confirm operation using the matching model hash, live `modelV2.big=true`, valid/alive messages, and fresh Jetlink telemetry.
 
-## Latest drive · September 19, 2026
+## Latest capture · September 20, 2026
+
+Collected logs from both devices. The latest recording includes early accelerator interruptions and a later uninterrupted large-model interval; the owner reports correcting insufficient power between drives. TP-Link USB Wi-Fi is working, and the internal radios are disabled. [Capture and hardware details](https://github.com/ryanafdahl/nrdr-jetstream/blob/jetson-trt/docs/JETSON_WIFI_AND_CAPTURE_2026-09-20.md).
+
+## Previous drive · September 19, 2026
 
 **Cinque Terre V2 verified across all 20 full-rate segments**, 23:03:59–23:23:04 UTC.
 
@@ -65,7 +69,7 @@ Use the installed container's `python3 -m jetlink.registry fetch <ref>` and `pre
 
 **September 19:** added the validated nightly compatibility update; renamed the project and comma 4 home-screen title to **NRDR JetStream**; integrated Jetlink; restored hash-verified native ONNX chunks; fixed lease cleanup and compilation failure handling; added the short installer; verified BMRLNAP inference; precached Cinque Terre in 30.5 s and verified it across three recordings.
 
-Development: [jetson-trt](https://github.com/ryanafdahl/nrdr-jetstream/tree/jetson-trt). Install candidate: `87e530f8914949b28e1fa00933b3297b7d0ee346`. Install branches are updated separately from development. [Validation](https://github.com/ryanafdahl/nrdr-jetstream/actions/runs/35476805824): 75 portable tests passed twice for this update. [Installer checks](https://github.com/ryanafdahl/nrdr-jetstream/actions/runs/35461743304) passed.
+Development: [jetson-trt](https://github.com/ryanafdahl/nrdr-jetstream/tree/jetson-trt). Installed runtime: `92c539b5d737915db3b3976967a4ff4080328145`. Install branches are updated separately from development. [Validation](https://github.com/ryanafdahl/nrdr-jetstream/actions/runs/35476805824): 75 portable tests passed twice for this update. [Installer checks](https://github.com/ryanafdahl/nrdr-jetstream/actions/runs/35461743304) passed.
 
 [Install guide](https://github.com/ryanafdahl/nrdr-jetstream/blob/jetson-trt/docs/JETSON_INSTALL.md) · [Hardware checks](https://github.com/ryanafdahl/nrdr-jetstream/blob/jetson-trt/docs/COMMA4_JETSON_PARKED_TEST.md)
 
