@@ -2,13 +2,13 @@
 
 Reviewed all nine deferred paths from [NRDR nightly e0bf1e63](https://github.com/nrdr/openpilot/commit/e0bf1e63b2ea2bcbe1d48c990d0e6786ccfbe50e).
 
-**One adapted feature, two previously integrated changes, six retained JetStream behaviors.** This is a selective integration, not an exact nightly mirror. No installation or device-setting change was performed.
+**One adapted feature, two previously integrated changes, six retained JetStream behaviors.** This is a selective integration, not an exact nightly mirror. Installed September 20 as `92c539b5d737915db3b3976967a4ff4080328145`, after on-device build and compatibility checks. The new option remains OFF.
 
 ## Newly integrated
 
 **Steering → MADS → Retry Startup Lane Centering (Default: OFF)** adds nightly's startup request retry behind the new persistent `JetstreamAutoLkas` toggle. It requires main-cruise engagement to be enabled, requests engagement through the existing MADS state machine, and does not directly activate controls. The option can only be changed offroad in the UI. Once MADS engages, manual disengagement remains respected until main cruise cycles off/on. Turning the option off stops further requests; normal steering controls remain responsible for disengagement.
 
-This is source integration only: the target Params library must be rebuilt before installation, and the new option remains unqualified on physical hardware. The installer remains pinned to the existing build.
+The target Params library and full startup build completed on the comma; all 12 compatibility tests passed. A 10-second startup sample showed UI, hardwared, pandad and jetlinkd running in all 21 managerState updates. No driving qualification of the opt-in behavior is claimed. The installer branch now points to `92c539b`.
 
 ## File decisions
 
