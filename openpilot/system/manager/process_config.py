@@ -17,6 +17,13 @@ from openpilot.sunnypilot.sunnylink.utils import sunnylink_need_register, sunnyl
 
 WEBCAM = os.getenv("USE_WEBCAM") is not None
 
+def bluetooth_enabled(started, params, CP):
+  from openpilot.system.bluetooth.preflight import problems
+  return params.get_bool("BluetoothEnabled") and not problems()
+
+def sound_enabled(started, params, CP):
+  return driverview(started, params, CP) or (not started and params.get_bool("BluetoothAudioTestActive"))
+
 def driverview(started: bool, params: Params, CP: car.CarParams) -> bool:
   return started or params.get_bool("IsDriverViewEnabled")
 
@@ -127,7 +134,7 @@ procs = [
 
   PythonProcess("sensord", "openpilot.system.sensord.sensord", only_onroad, enabled=not PC),
   PythonProcess("ui", "openpilot.selfdrive.ui.ui", always_run),
-  PythonProcess("soundd", "openpilot.selfdrive.ui.soundd", driverview, wait_for_ready=True),
+  PythonProcess("soundd", "openpilot.selfdrive.ui.soundd", sound_enabled, wait_for_ready=True),
   PythonProcess("locationd", "openpilot.selfdrive.locationd.locationd", only_onroad),
   NativeProcess("_pandad", "openpilot/selfdrive/pandad", ["./pandad"], always_run, enabled=False),
   PythonProcess("calibrationd", "openpilot.selfdrive.locationd.calibrationd", only_onroad),
@@ -154,6 +161,8 @@ procs = [
   PythonProcess("updated", "openpilot.system.updated.updated", only_offroad, enabled=not PC),
   PythonProcess("uploader", "openpilot.system.loggerd.uploader", uploader_ready),
   PythonProcess("statsd", "openpilot.sunnypilot.system.statsd", always_run),
+
+  PythonProcess("bluetooth_managerd", "openpilot.system.bluetooth.daemon", bluetooth_enabled, enabled=COMMA_HARDWARE),
 
   # debug procs
   NativeProcess("bridge", "openpilot/cereal/messaging", ["./bridge"], notcar),

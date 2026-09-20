@@ -1,4 +1,5 @@
 from openpilot.common.params import Params
+from openpilot.selfdrive.ui.mici.layouts.settings.bluetooth import BluetoothLayoutMici
 from openpilot.system.ui.widgets.scroller import NavScroller
 from openpilot.selfdrive.ui.mici.widgets.button import BigButton
 from openpilot.selfdrive.ui.mici.layouts.settings.toggles import TogglesLayoutMici
@@ -28,6 +29,10 @@ class SettingsLayout(NavScroller):
     self._network_btn = SettingsBigButton("network", "", gui_app.texture("icons_mici/settings/network/wifi_strength_full.png", 76, 56))
     self._network_btn.set_click_callback(lambda: gui_app.push_widget(self._network_panel))
 
+    self._bluetooth_panel = BluetoothLayoutMici()
+    self._bluetooth_btn = SettingsBigButton("bluetooth", "pairing / audio / controllers")
+    self._bluetooth_btn.set_click_callback(lambda: gui_app.push_widget(self._bluetooth_panel))
+
     self._device_panel = DeviceLayoutMici()
     self._device_btn = SettingsBigButton("device", "", gui_app.texture("icons_mici/settings/device_icon.png", 72, 58))
     self._device_btn.set_click_callback(lambda: gui_app.push_widget(self._device_panel))
@@ -49,6 +54,7 @@ class SettingsLayout(NavScroller):
     self._scroller.add_widgets([
       self._toggles_btn,
       self._network_btn,
+      self._bluetooth_btn,
       self._device_btn,
       self._software_btn,
       self._pair_btn,

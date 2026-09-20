@@ -6,6 +6,8 @@ import wave
 
 from openpilot.cereal import log, messaging, custom
 from openpilot.common.basedir import BASEDIR
+from openpilot.common.params import Params
+from openpilot.system.bluetooth.audio import BluetoothAudioSink
 from openpilot.common.filter_simple import FirstOrderFilter
 from openpilot.common.realtime import Ratekeeper
 from openpilot.common.swaglog import cloudlog
@@ -76,6 +78,8 @@ class Soundd(QuietMode):
 
     self.load_sounds()
     self.ready_event = ready_event
+    self.bluetooth_params = Params()
+    self.bluetooth_sink = BluetoothAudioSink(self.bluetooth_params)
 
     self.current_alert = AudibleAlert.none
     self.current_volume = MIN_VOLUME
@@ -134,7 +138,14 @@ class Soundd(QuietMode):
   def callback(self, data_out: np.ndarray, frames: int, time, status) -> None:
     if status:
       cloudlog.warning(f"soundd stream over/underflow: {status}")
-    data_out[:frames, 0] = self.get_sound_data(frames)
+    samples = self.get_sound_data(frames)
+    data_out[:frames, 0] = samples
+    # Bluetooth mirrors audio; loss, latency or queue overflow never mutes local alerts.
+    try:
+      self.bluetooth_sink.submit(samples)
+    except Exception:
+      # The local audio callback must survive any optional Bluetooth failure.
+      pass
 
   def update_alert(self, new_alert):
     current_alert_played_once = self.current_alert == AudibleAlert.none or self.current_sound_frame >= len(self.loaded_sounds[self.current_alert])
@@ -202,6 +213,9 @@ class Soundd(QuietMode):
             self.current_volume = self.calculate_volume(float(self.spl_filter_weighted.x))
 
         self.get_audible_alert(sm)
+        if self.bluetooth_params.get_bool("IsOffroad") and self.bluetooth_params.get("BluetoothTestSound") == "engage":
+          self.bluetooth_params.remove("BluetoothTestSound")
+          self.update_alert(AudibleAlert.engage)
 
         # Ramp up immediate warning sound over 4s
         if self.current_alert == AudibleAlert.warningImmediate:
@@ -218,10 +232,13 @@ class Soundd(QuietMode):
 def main(ready_event=None):
   if ready_event is not None:
     ready_event.clear()
+  s = None
   try:
     s = Soundd(ready_event)
     s.soundd_thread()
   finally:
+    if s is not None:
+      s.bluetooth_sink.close()
     if ready_event is not None:
       ready_event.clear()
 

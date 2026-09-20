@@ -2,6 +2,10 @@
 
 NRDR openpilot for **comma 4 + Jetson Orin Nano Super**, using USB Jetlink and TensorRT for large-model inference. The comma handles cameras and vehicle control.
 
+## Bluetooth development
+
+StarPilot pairing/audio support and a controller button-test screen are staged on `starpilot-bluetooth`. **Not installed or hardware-qualified:** the current AGNOS 19.7 kernel has Bluetooth disabled. Controller action mappings remain pending. [Port, tests and OS requirements](https://github.com/ryanafdahl/nrdr-jetstream/blob/starpilot-bluetooth/docs/BLUETOOTH_PORT.md).
+
 ## Nightly compatibility update
 
 Selected changes from `nrdr-nightly` snapshot `e0bf1e63`: longitudinal door/seat-belt/parking-brake/gear checks and clearer speed-limit alerts. JetStream retains its current driver monitoring, disengagement safeguards, MADS activation, Jetlink, branding, and comma Connect uploads. This is a selective port on the clean base.

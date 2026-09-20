@@ -6,6 +6,11 @@
 #include "openpilot/cereal/gen/cpp/log.capnp.h"
 
 inline static std::unordered_map<std::string, ParamKeyAttributes> keys = {
+    {"BluetoothEnabled", {PERSISTENT, BOOL, "0"}},
+    {"BluetoothAudioAddress", {PERSISTENT | DONT_LOG, STRING}},
+    {"BluetoothDisconnectControllersOffroad", {PERSISTENT, BOOL, "0"}},
+    {"BluetoothAudioTestActive", {CLEAR_ON_MANAGER_START | DONT_LOG, BOOL}},
+    {"BluetoothTestSound", {CLEAR_ON_MANAGER_START | DONT_LOG, STRING}},
     {"AccessToken", {CLEAR_ON_MANAGER_START | DONT_LOG, STRING}},
     {"AdbEnabled", {PERSISTENT | BACKUP, BOOL}},
     {"AlwaysOnDM", {PERSISTENT | BACKUP, BOOL}},
