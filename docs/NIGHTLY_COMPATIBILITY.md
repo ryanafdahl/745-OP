@@ -2,11 +2,11 @@
 
 Upstream reviewed: `nrdr/openpilot:nrdr-nightly`, **e0bf1e63b2ea2bcbe1d48c990d0e6786ccfbe50e**.
 Retained base: **b3366b5b56512805be8f0bf832b4981bfd958072**.
-Install candidate: **87e530f8914949b28e1fa00933b3297b7d0ee346**.
+Install candidate: **92c539b5d737915db3b3976967a4ff4080328145**.
 
 ## September 20 follow-up
 
-All nine deferred files were reviewed. Startup LKAS request retry is now a default-off source option; comma Connect, monitoring, fault alerts and Jetlink reconnect behavior are retained. [Per-file decisions and validation](NRDR_NIGHTLY_SYNC.md). The install candidate above remains unchanged; the new option is not deployed.
+All nine deferred files were reviewed. Startup LKAS request retry is now a default-off source option; comma Connect, monitoring, fault alerts and Jetlink reconnect behavior are retained. [Per-file decisions and validation](NRDR_NIGHTLY_SYNC.md). The candidate above was installed September 20 while offroad. The native parameter library and full startup build completed; all 12 compatibility tests passed on-device. The new option remains OFF. A 10-second managerState sample contained 21 updates with UI, hardwared, pandad and jetlinkd running throughout; final message alive/valid flags were true. This verifies offroad startup, not driving behavior.
 
 ## Previously applied
 
