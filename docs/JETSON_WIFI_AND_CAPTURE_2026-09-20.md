@@ -10,7 +10,7 @@ Tested on Orin Nano Super with kernel `6.8.12-1021-tegra`:
 
 The internal RTL8822CE PCIe Wi-Fi driver is unloaded and blacklisted in `/etc/modprobe.d/jetstream-internal-wifi.conf`. Its PCIe function reports runtime suspended. The internal Bluetooth device (`13d3:3549`) is deauthorized by a device-specific udev rule. Its USB runtime state still reports active: complete removal of electrical power is **not verified**.
 
-Persistent rules are `/etc/udev/rules.d/81-jetstream-internal-bluetooth.rules` and `82-jetstream-internal-wifi-power.rules`. No reboot was performed; boot persistence remains to be verified. The USB adapter and Jetlink server were working after these changes. This adapter provides Wi-Fi, not replacement Bluetooth.
+Persistent rules are `/etc/udev/rules.d/81-jetstream-internal-bluetooth.rules` and `82-jetstream-internal-wifi-power.rules`. Reboot persistence verified at 16:36 UTC: the USB adapter automatically reconnected on 5 GHz with Ethernet carrier 0, the internal Wi-Fi remained suspended, and Bluetooth remained deauthorized. Ten interface-bound gateway pings had zero loss (3.969 ms mean); HTTPS returned 200 through the USB interface. Jetlink was active after startup. This verifies networking and service startup, not live inference. The USB adapter and Jetlink server were working after these changes. This adapter provides Wi-Fi, not replacement Bluetooth.
 
 To restore the internal card after antenna repair, remove those three configuration files, reload udev rules, and reboot. Driver installation evidence is retained privately under `/home/username/jetstream-wifi-20260920/`.
 
@@ -30,4 +30,4 @@ Comma: `/data/jetson-diagnostics/comma-20260920-logs.tar.gz` — 305,823,857 byt
 
 Jetson: `/home/username/jetson-20260920-logs.tar.gz` — 20,262 bytes, SHA-256 `cc6f7bae42f53830016c574d827638d87caf0ea8477063e3073841b00120ee51`. Contains available Jetlink service/container/kernel logs, boot history, cache manifest, engine identity, and precache log. Current server is active and reports Cinque Terre engine `09d080f36965bb2a` ready. Some Jetson timestamps are 1970 before time synchronization, and rotated logs limit historical coverage.
 
-Archives are retained on the devices. Local binary download was blocked by file-write errors; it is not claimed as completed. Raw logs and credentials are not published.
+Archives are retained on the devices and have now been downloaded privately to the PC. Both local sizes and SHA-256 checksums match the originals. Allowing scp.exe through Windows Defender Controlled Folder Access resolved the file-write errors. Raw logs and credentials are not published.

@@ -34,7 +34,7 @@ A flashing GPU icon can mean download, preparation, or connection waiting. Confi
 
 ## Latest capture · September 20, 2026
 
-Collected logs from both devices. The latest recording includes early accelerator interruptions and a later uninterrupted large-model interval; the owner reports correcting insufficient power between drives. TP-Link USB Wi-Fi is working, and the internal radios are disabled. [Capture and hardware details](https://github.com/ryanafdahl/nrdr-jetstream/blob/jetson-trt/docs/JETSON_WIFI_AND_CAPTURE_2026-09-20.md).
+Collected logs from both devices. The latest recording includes early accelerator interruptions and a later uninterrupted large-model interval; the owner reports correcting insufficient power between drives. TP-Link USB Wi-Fi automatically reconnects after reboot with Ethernet unplugged; internet checks passed and the internal radios remain disabled. [Capture and hardware details](https://github.com/ryanafdahl/nrdr-jetstream/blob/jetson-trt/docs/JETSON_WIFI_AND_CAPTURE_2026-09-20.md).
 
 ## Previous drive · September 19, 2026
 
