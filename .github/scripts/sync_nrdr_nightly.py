@@ -118,11 +118,11 @@ class GitHub:
     return raw.decode("utf-8")
 
 
-def readme_status(readme, sha, applied, pending):
+def readme_status(readme, sha, applied, pending, reviewed=0):
   block = (START + "\n### Daily NRDR nightly updates\n\n"
            f"Last observed snapshot: [`{sha[:12]}`](https://github.com/{UPSTREAM}/commit/{sha}). "
            f"This check applied **{applied}** compatible file updates; **{pending}** paths remain for manual integration. "
-           "Daily commits target `jetson-trt`; the comma installer stays pinned. "
+           f"**{reviewed}** file decisions have been reviewed. Daily commits target `jetson-trt`; the comma installer stays pinned. "
            "[Changes and policy](https://github.com/ryanafdahl/nrdr-jetstream/blob/jetson-trt/docs/NRDR_NIGHTLY_SYNC.md).\n" + END)
   if START in readme:
     if readme.count(START) != 1 or readme.count(END) != 1 or readme.index(END) < readme.index(START):
@@ -137,13 +137,19 @@ def plan(api, repo, current_sha, upstream_sha):
   state = json.loads(api.text(repo, ours[STATE])) if STATE in ours else {
     "upstream_sha": INITIAL_BASE, "pending": {},
   }
-  if state["upstream_sha"] == upstream_sha:
-    return [], {"unchanged": True, "pending": len(state.get("pending", {}))}
+  reviews = state.get("reviewed", {})
+  valid_reviews = {p: r for p, r in reviews.items()
+                   if r.get("upstream") == identity(upstream.get(p)) and r.get("local") == identity(ours.get(p))}
+  if state["upstream_sha"] == upstream_sha and len(valid_reviews) == len(reviews):
+    return [], {"unchanged": True, "pending": len(state.get("pending", {})), "reviewed": len(valid_reviews)}
   previous = api.tree(UPSTREAM, state["upstream_sha"])
   paths = {p for p in set(previous) | set(upstream) if identity(previous.get(p)) != identity(upstream.get(p))}
   paths.update(state.get("pending", {}))
+  paths.update(reviews)
   pending, applied, entries = {}, [], []
   for path in sorted(paths):
+    if path in valid_reviews:
+      continue
     old, new, local = previous.get(path), upstream.get(path), ours.get(path)
     reason = classify_entries(path, old, new, local)
     if reason == "current":
@@ -162,7 +168,7 @@ def plan(api, repo, current_sha, upstream_sha):
     if reason != "apply":
       pending[path] = reason
   new_state = {"upstream_repo": UPSTREAM, "upstream_branch": UPSTREAM_BRANCH,
-               "upstream_sha": upstream_sha, "pending": pending}
+               "upstream_sha": upstream_sha, "pending": pending, "reviewed": valid_reviews}
   report = ("# Daily NRDR nightly sync\n\n"
             f"Upstream: [{upstream_sha}](https://github.com/{UPSTREAM}/commit/{upstream_sha})\n\n"
             f"Previous observed snapshot: `{state['upstream_sha']}`. Target before this commit: `{current_sha}`.\n\n"
@@ -175,8 +181,11 @@ def plan(api, repo, current_sha, upstream_sha):
             "and does not deploy or roll back the commit. The installer and installed comma remain pinned.\n\n"
             "## Applied files\n\n" + ("\n".join(f"- `{p}`" for p in applied) or "None.") + "\n\n"
             "## Manual integration\n\n" + ("\n".join(f"- `{p}` — {why}" for p, why in pending.items()) or "None.") + "\n")
+  report += "\n## Reviewed decisions\n\n" + ("\n".join(
+    f"- `{p}` — {r['decision']}" for p, r in sorted(valid_reviews.items())
+  ) or "None.") + "\n"
   for path, content in ((STATE, json.dumps(new_state, indent=2) + "\n"), (REPORT, report),
-                        ("README.md", readme_status(api.text(repo, ours["README.md"]), upstream_sha, len(applied), len(pending)))):
+                        ("README.md", readme_status(api.text(repo, ours["README.md"]), upstream_sha, len(applied), len(pending), len(valid_reviews)))):
     entries.append({"path": path, "mode": "100644", "type": "blob", "content": content})
   return entries, {"unchanged": False, "applied": len(applied), "pending": len(pending), "upstream": upstream_sha}
 

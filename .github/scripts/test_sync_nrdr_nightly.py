@@ -101,5 +101,39 @@ class SyncTests(unittest.TestCase):
       run(api, "repo")
 
 
+class ReviewedDecisionTests(unittest.TestCase):
+  def api(self):
+    path = "openpilot/nrdr/hooks/events.py"
+    api = FakeAPI({path: "upstream"}, {path: "upstream"}, {path: "retained"})
+    review = {"upstream": {k: blob("upstream")[k] for k in ("mode", "type", "sha")},
+              "local": {k: blob("retained")[k] for k in ("mode", "type", "sha")},
+              "decision": "retain safeguards"}
+    state = json.dumps({"upstream_sha": INITIAL_BASE, "pending": {}, "reviewed": {path: review}})
+    api.trees["ours"][STATE] = blob(state)
+    api.contents[blob(state)["sha"]] = state
+    return api, path
+
+  def test_reviewed_difference_is_not_repeated(self):
+    api, path = self.api()
+    entries, result = plan(api, "repo", "ours", "new")
+    self.assertEqual(result["pending"], 0)
+    state = json.loads(next(e["content"] for e in entries if e["path"] == STATE))
+    self.assertIn(path, state["reviewed"])
+
+  def test_new_upstream_blob_requires_new_review(self):
+    api, path = self.api()
+    api.trees["new"][path] = blob("new upstream")
+    _, result = plan(api, "repo", "ours", "new")
+    self.assertEqual(result["pending"], 1)
+
+  def test_local_change_invalidates_review_without_upstream_update(self):
+    api, path = self.api()
+    api.trees["ours"][path] = blob("local changed")
+    entries, result = plan(api, "repo", "ours", INITIAL_BASE)
+    self.assertFalse(result["unchanged"])
+    self.assertEqual(result["pending"], 1)
+    state = json.loads(next(e["content"] for e in entries if e["path"] == STATE))
+    self.assertNotIn(path, state["reviewed"])
+
 if __name__ == "__main__":
   unittest.main()
