@@ -1,0 +1,71 @@
+name: Daily NRDR nightly sync
+on:
+  schedule:
+    - cron: '23 10 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Compare only; do not commit
+        type: boolean
+        default: false
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/sync-nrdr-nightly.yml
+      - .github/scripts/sync_nrdr_nightly.py
+      - .github/scripts/test_sync_nrdr_nightly.py
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nrdr-nightly-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    if: github.repository == 'ryanafdahl/nrdr-jetstream'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    outputs:
+      revision: ${{ steps.sync.outputs.revision }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/scripts
+      - name: Test snapshot updater
+        working-directory: .github/scripts
+        run: python3 -m unittest -v test_sync_nrdr_nightly
+      - name: Compare and commit compatible updates
+        id: sync
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DRY_RUN: ${{ inputs.dry_run || false }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          args=()
+          if [ "$DRY_RUN" = "true" ]; then args+=(--dry-run); fi
+          python3 .github/scripts/sync_nrdr_nightly.py "${args[@]}"
+      - name: Record outcome
+        if: success()
+        env:
+          REVISION: ${{ steps.sync.outputs.revision }}
+        run: |
+          if [ -n "$REVISION" ]; then
+            echo "Committed NRDR nightly sync: $REVISION. Source audit follows; installer unchanged." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No commit created (unchanged snapshot or dry run). See comparison log." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+  validate:
+    needs: sync
+    if: needs.sync.outputs.revision != ''
+    permissions:
+      contents: read
+    uses: ./.github/workflows/validate-jetson-trt.yml
+    with:
+      revision: ${{ needs.sync.outputs.revision }}

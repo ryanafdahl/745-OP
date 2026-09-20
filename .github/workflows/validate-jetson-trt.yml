@@ -4,12 +4,18 @@ on:
   push:
     branches: [jetson-trt]
   workflow_dispatch:
+  workflow_call:
+    inputs:
+      revision:
+        description: Exact target commit to audit
+        required: true
+        type: string
 
 permissions:
   contents: read
 
 concurrency:
-  group: jetson-source-audit-${{ github.ref }}
+  group: jetson-source-audit-${{ inputs.revision || github.ref }}
   cancel-in-progress: true
 
 env:
@@ -25,7 +31,7 @@ jobs:
       - name: Checkout the exact commit under review
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ inputs.revision || github.sha }}
           fetch-depth: 0
           submodules: recursive
           persist-credentials: false
@@ -70,7 +76,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          curl --fail --location --retry 3 "https://raw.githubusercontent.com/ryanafdahl/nrdr-jetstream/${{ github.sha }}/tools/install_jetson.py" -o "$RUNNER_TEMP/public-installer.py"
+          curl --fail --location --retry 3 "https://raw.githubusercontent.com/ryanafdahl/nrdr-jetstream/${{ inputs.revision || github.sha }}/tools/install_jetson.py" -o "$RUNNER_TEMP/public-installer.py"
           cmp tools/install_jetson.py "$RUNNER_TEMP/public-installer.py"
           python3 -c 'from tools.install_jetson import REVISION; import subprocess; subprocess.run(["git", "merge-base", "--is-ancestor", REVISION, "HEAD"], check=True)'
       - name: Capture exact source revision and diff
@@ -89,7 +95,7 @@ jobs:
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: jetson-source-audit-${{ github.sha }}
+          name: jetson-source-audit-${{ inputs.revision || github.sha }}
           path: audit-output/
           retention-days: 7
           if-no-files-found: error
