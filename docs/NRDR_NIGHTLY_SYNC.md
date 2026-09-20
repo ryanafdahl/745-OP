@@ -2,7 +2,7 @@
 
 Reviewed all nine deferred paths from [NRDR nightly e0bf1e63](https://github.com/nrdr/openpilot/commit/e0bf1e63b2ea2bcbe1d48c990d0e6786ccfbe50e).
 
-**One adapted feature, two previously integrated changes, six retained JetStream behaviors.** This is a selective integration, not an exact nightly mirror. Installed September 20 as `92c539b5d737915db3b3976967a4ff4080328145`, after on-device build and compatibility checks. The new option remains OFF.
+**One adapted feature, two previously integrated changes, six retained 745-OP behaviors.** This is a selective integration, not an exact nightly mirror. Installed September 20 as `92c539b5d737915db3b3976967a4ff4080328145`, after on-device build and compatibility checks. The new option remains OFF.
 
 ## Newly integrated
 
@@ -18,12 +18,12 @@ The target Params library and full startup build completed on the comma; all 12 
 - `openpilot/nrdr/hooks/events.py` — Integrated longitudinal interlocks previously; retained event reporting, lateral fault handling and existing allowed gears.
 - `openpilot/nrdr/hooks/events_sp.py` — Integrated speed-limit messages/chime previously; retained controls-mismatch and turn alerts.
 - `openpilot/nrdr/ui/home/layout.py` — Retained comma Connect destination text, consistent with the selected backend.
-- `openpilot/nrdr/ui/home/mici.py` — Retained comma Connect destination text and JetStream branding.
+- `openpilot/nrdr/ui/home/mici.py` — Retained comma Connect destination text and 745-OP branding.
 - `openpilot/nrdr/ui/settings/party_tricks.py` — Kept Konik re-registration hidden because this build uses comma Connect.
 - `openpilot/selfdrive/selfdrived/events.py` — Retained communication-failure disengagement/no-entry alerts and Jetlink reconnection guidance.
 
 ## Validation and future checks
 
-Six new unit tests cover opt-in/main-cruise gating, startup retries, cancellation, rearming, disabling the option, and already-engaged behavior. They passed locally. Thirteen snapshot-updater tests passed, including stable review records, changed upstream blobs and changed local blobs. The full [source audit](https://github.com/ryanafdahl/nrdr-jetstream/actions/workflows/validate-jetson-trt.yml) runs on the integration commit.
+Six new unit tests cover opt-in/main-cruise gating, startup retries, cancellation, rearming, disabling the option, and already-engaged behavior. They passed locally. Thirteen snapshot-updater tests passed, including stable review records, changed upstream blobs and changed local blobs. The full [source audit](https://github.com/ryanafdahl/745-OP/actions/workflows/validate-jetson-trt.yml) runs on the integration commit.
 
 The daily workflow records each decision against both upstream and local Git blob identities. These nine reviewed differences are no longer unresolved items. A later change to either side invalidates its review and returns the file to manual integration; protected source is never silently overwritten.

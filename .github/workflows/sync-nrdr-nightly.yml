@@ -24,7 +24,7 @@ concurrency:
 
 jobs:
   sync:
-    if: github.repository == 'ryanafdahl/nrdr-jetstream'
+    if: github.repository == 'ryanafdahl/745-OP'
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     permissions:

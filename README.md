@@ -1,26 +1,26 @@
-# NRDR JetStream
+# 745-OP
 
 NRDR openpilot for **comma 4 + Jetson Orin Nano Super**, using USB Jetlink and TensorRT for large-model inference. The comma handles cameras and vehicle control.
 
 ## Automatic nightly updates
 
-[Daily GitHub Actions checks](https://github.com/ryanafdahl/nrdr-jetstream/actions/workflows/sync-nrdr-nightly.yml) track **NRDR `nrdr-nightly`** at **10:23 UTC** and commit compatible changes to `jetson-trt`. Customized/protected files are listed for manual integration, and the source audit runs after each update. The comma installer stays pinned. [How it works](https://github.com/ryanafdahl/nrdr-jetstream/blob/jetson-trt/docs/AUTOMATIC_UPDATES.md).
+[Daily GitHub Actions checks](https://github.com/ryanafdahl/745-OP/actions/workflows/sync-nrdr-nightly.yml) track **NRDR `nrdr-nightly`** at **10:23 UTC** and commit compatible changes to `jetson-trt`. Customized/protected files are listed for manual integration, and the source audit runs after each update. The comma installer stays pinned. [How it works](https://github.com/ryanafdahl/745-OP/blob/jetson-trt/docs/AUTOMATIC_UPDATES.md).
 
 ## Nightly compatibility update
 
-Selected changes from `nrdr-nightly` snapshot `e0bf1e63`: longitudinal door/seat-belt/parking-brake/gear checks and clearer speed-limit alerts. JetStream retains its current driver monitoring, disengagement safeguards, MADS activation, Jetlink, branding, and comma Connect uploads. This is a selective port on the clean base.
+Selected changes from `nrdr-nightly` snapshot `e0bf1e63`: longitudinal door/seat-belt/parking-brake/gear checks and clearer speed-limit alerts. 745-OP retains its current driver monitoring, disengagement safeguards, MADS activation, Jetlink, branding, and comma Connect uploads. This is a selective port on the clean base.
 
-[Update details and validation](https://github.com/ryanafdahl/nrdr-jetstream/blob/jetson-trt/docs/NIGHTLY_COMPATIBILITY.md). Drive measurements below were recorded before this update.
+[Update details and validation](https://github.com/ryanafdahl/745-OP/blob/jetson-trt/docs/NIGHTLY_COMPATIBILITY.md). Drive measurements below were recorded before this update.
 
 ## Install
 
 Factory reset the comma, connect to Wi-Fi, choose **Custom Software**, and enter:
 
 ```text
-ryanafdahl/nrdr-jetstream
+ryanafdahl/745-OP
 ```
 
-Keep power and internet connected through installation and first-boot compilation. The [installer](https://installer.comma.ai/ryanafdahl/nrdr-jetstream) uses [ryanafdahl/openpilot → nrdr-jetstream](https://github.com/ryanafdahl/openpilot/tree/nrdr-jetstream), targeting **AGNOS 19.7**.
+Keep power and internet connected through installation and first-boot compilation. The [installer](https://installer.comma.ai/ryanafdahl/745-OP) uses [ryanafdahl/openpilot → 745-OP](https://github.com/ryanafdahl/openpilot/tree/745-OP), targeting **AGNOS 19.7**.
 
 ## Connect
 
@@ -34,7 +34,7 @@ A flashing GPU icon can mean download, preparation, or connection waiting. Confi
 
 ## Latest capture · September 20, 2026
 
-Collected logs from both devices. The latest recording includes early accelerator interruptions and a later uninterrupted large-model interval; the owner reports correcting insufficient power between drives. TP-Link USB Wi-Fi automatically reconnects after reboot with Ethernet unplugged; internet checks passed and the internal radios remain disabled. [Capture and hardware details](https://github.com/ryanafdahl/nrdr-jetstream/blob/jetson-trt/docs/JETSON_WIFI_AND_CAPTURE_2026-09-20.md).
+Collected logs from both devices. The latest recording includes early accelerator interruptions and a later uninterrupted large-model interval; the owner reports correcting insufficient power between drives. TP-Link USB Wi-Fi automatically reconnects after reboot with Ethernet unplugged; internet checks passed and the internal radios remain disabled. [Capture and hardware details](https://github.com/ryanafdahl/745-OP/blob/jetson-trt/docs/JETSON_WIFI_AND_CAPTURE_2026-09-20.md).
 
 ## Previous drive · September 19, 2026
 
@@ -55,7 +55,7 @@ Temporary steering-fault flags totaled **9.22 s** across 10 episodes (8.23 s mov
 
 **Three Cinque Terre recordings:** 48,985 large-model messages; sample-weighted execution **36.73 ms**. Across 2,322 telemetry readings: **60.07°C, 13.26 W, 2,464 RPM**. BMRLNAP results remain separate.
 
-[Latest analysis](https://github.com/ryanafdahl/nrdr-jetstream/blob/jetson-trt/docs/CINQUE_TERRE_DRIVE_2026-09-19_2303.md) · [Previous recording](https://github.com/ryanafdahl/nrdr-jetstream/blob/jetson-trt/docs/CINQUE_TERRE_DRIVE_2026-09-19_2212.md) · [Check history](https://github.com/ryanafdahl/nrdr-jetstream/blob/jetson-trt/docs/HARDWARE_CHECK_HISTORY_2026-09-19.md). Jetson data here comes from comma-side logs; direct Jetson logs were unavailable while it was offline. Raw logs/video remain private.
+[Latest analysis](https://github.com/ryanafdahl/745-OP/blob/jetson-trt/docs/CINQUE_TERRE_DRIVE_2026-09-19_2303.md) · [Previous recording](https://github.com/ryanafdahl/745-OP/blob/jetson-trt/docs/CINQUE_TERRE_DRIVE_2026-09-19_2212.md) · [Check history](https://github.com/ryanafdahl/745-OP/blob/jetson-trt/docs/HARDWARE_CHECK_HISTORY_2026-09-19.md). Jetson data here comes from comma-side logs; direct Jetson logs were unavailable while it was offline. Raw logs/video remain private.
 
 ## Precache for the car
 
@@ -67,16 +67,18 @@ Use the installed container's `python3 -m jetlink.registry fetch <ref>` and `pre
 
 ## Changes and source
 
-**September 19:** added the validated nightly compatibility update; renamed the project and comma 4 home-screen title to **NRDR JetStream**; integrated Jetlink; restored hash-verified native ONNX chunks; fixed lease cleanup and compilation failure handling; added the short installer; verified BMRLNAP inference; precached Cinque Terre in 30.5 s and verified it across three recordings.
+**September 20:** renamed the repository and comma 4 home-screen title to **745-OP**. New custom install entry: `ryanafdahl/745-OP`.
 
-Development: [jetson-trt](https://github.com/ryanafdahl/nrdr-jetstream/tree/jetson-trt). Installed runtime: `92c539b5d737915db3b3976967a4ff4080328145`. Install branches are updated separately from development. [Validation](https://github.com/ryanafdahl/nrdr-jetstream/actions/runs/35476805824): 75 portable tests passed twice for this update. [Installer checks](https://github.com/ryanafdahl/nrdr-jetstream/actions/runs/35461743304) passed.
+**September 19:** added the validated nightly compatibility update; renamed the project and comma 4 home-screen title to **745-OP**; integrated Jetlink; restored hash-verified native ONNX chunks; fixed lease cleanup and compilation failure handling; added the short installer; verified BMRLNAP inference; precached Cinque Terre in 30.5 s and verified it across three recordings.
 
-[Install guide](https://github.com/ryanafdahl/nrdr-jetstream/blob/jetson-trt/docs/JETSON_INSTALL.md) · [Hardware checks](https://github.com/ryanafdahl/nrdr-jetstream/blob/jetson-trt/docs/COMMA4_JETSON_PARKED_TEST.md)
+Development: [jetson-trt](https://github.com/ryanafdahl/745-OP/tree/jetson-trt). Installed runtime: `b92ad8d1086d38a1378b85e94753a7e17b2aea17`. Install branches are updated separately from development. [Validation](https://github.com/ryanafdahl/745-OP/actions/runs/35476805824): 75 portable tests passed twice for this update. [Installer checks](https://github.com/ryanafdahl/745-OP/actions/runs/35461743304) passed.
 
-Built on NRDR, comma.ai, sunnypilot, Zoompilot, and Jetlink. [License](https://github.com/ryanafdahl/nrdr-jetstream/blob/jetson-trt/LICENSE) · [Additional notices](https://github.com/ryanafdahl/nrdr-jetstream/blob/jetson-trt/LICENSE.md).
+[Install guide](https://github.com/ryanafdahl/745-OP/blob/jetson-trt/docs/JETSON_INSTALL.md) · [Hardware checks](https://github.com/ryanafdahl/745-OP/blob/jetson-trt/docs/COMMA4_JETSON_PARKED_TEST.md)
+
+Built on NRDR, comma.ai, sunnypilot, Zoompilot, and Jetlink. [License](https://github.com/ryanafdahl/745-OP/blob/jetson-trt/LICENSE) · [Additional notices](https://github.com/ryanafdahl/745-OP/blob/jetson-trt/LICENSE.md).
 
 <!-- nrdr-nightly-sync:start -->
 ### Reviewed nightly integration
 
-All nine deferred files reviewed: startup LKAS retry added as a **default-off** option; existing interlocks/speed-limit updates kept; comma Connect and monitoring/fault protections retained. **0 unresolved, 9 recorded decisions** for snapshot `e0bf1e63`. Changes on either side reopen review. Installed on the comma September 20 as `92c539b`: native build and 12 compatibility tests passed; UI, hardwared, pandad and jetlinkd were running in all 21 startup samples. Startup retry remains OFF. [Details](https://github.com/ryanafdahl/nrdr-jetstream/blob/jetson-trt/docs/NRDR_NIGHTLY_SYNC.md).
+All nine deferred files reviewed: startup LKAS retry added as a **default-off** option; existing interlocks/speed-limit updates kept; comma Connect and monitoring/fault protections retained. **0 unresolved, 9 recorded decisions** for snapshot `e0bf1e63`. Changes on either side reopen review. Installed on the comma September 20 as `92c539b`: native build and 12 compatibility tests passed; UI, hardwared, pandad and jetlinkd were running in all 21 startup samples. Startup retry remains OFF. [Details](https://github.com/ryanafdahl/745-OP/blob/jetson-trt/docs/NRDR_NIGHTLY_SYNC.md).
 <!-- nrdr-nightly-sync:end -->
