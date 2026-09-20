@@ -67,11 +67,11 @@ Use the installed container's `python3 -m jetlink.registry fetch <ref>` and `pre
 
 ## Changes and source
 
-**September 20:** renamed the repository and comma 4 home-screen title to **745-OP**. New custom install entry: `ryanafdahl/745-OP`.
+**September 20:** renamed the repository to **745-OP**; the comma 4 home-screen title is **745 OP**. New custom install entry: `ryanafdahl/745-OP`.
 
 **September 19:** added the validated nightly compatibility update; renamed the project and comma 4 home-screen title to **745-OP**; integrated Jetlink; restored hash-verified native ONNX chunks; fixed lease cleanup and compilation failure handling; added the short installer; verified BMRLNAP inference; precached Cinque Terre in 30.5 s and verified it across three recordings.
 
-Development: [jetson-trt](https://github.com/ryanafdahl/745-OP/tree/jetson-trt). Installed runtime: `b92ad8d1086d38a1378b85e94753a7e17b2aea17`. Install branches are updated separately from development. [Validation](https://github.com/ryanafdahl/745-OP/actions/runs/35476805824): 75 portable tests passed twice for this update. [Installer checks](https://github.com/ryanafdahl/745-OP/actions/runs/35461743304) passed.
+Development: [jetson-trt](https://github.com/ryanafdahl/745-OP/tree/jetson-trt). Installed runtime: `aa2fd69ba4ce1a5e7d716248e281d4dea8d853a6`. Install branches are updated separately from development. [Validation](https://github.com/ryanafdahl/745-OP/actions/runs/35476805824): 75 portable tests passed twice for this update. [Installer checks](https://github.com/ryanafdahl/745-OP/actions/runs/35461743304) passed.
 
 [Install guide](https://github.com/ryanafdahl/745-OP/blob/jetson-trt/docs/JETSON_INSTALL.md) · [Hardware checks](https://github.com/ryanafdahl/745-OP/blob/jetson-trt/docs/COMMA4_JETSON_PARKED_TEST.md)
 

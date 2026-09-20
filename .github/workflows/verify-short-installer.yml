@@ -15,7 +15,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git ls-remote --heads https://github.com/ryanafdahl/openpilot.git refs/heads/745-OP | cut -f1)" = b92ad8d1086d38a1378b85e94753a7e17b2aea17
+          test "$(git ls-remote --heads https://github.com/ryanafdahl/openpilot.git refs/heads/745-OP | cut -f1)" = aa2fd69ba4ce1a5e7d716248e281d4dea8d853a6
           curl --fail --location --retry 3 --user-agent 'AGNOSSetup-19.7' -H 'X-openpilot-device-type: mici' https://installer.comma.ai/ryanafdahl/745-OP -o /tmp/comma-installer
           python3 - <<'PY'
           import hashlib
