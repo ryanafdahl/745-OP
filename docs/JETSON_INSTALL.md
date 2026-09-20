@@ -1,6 +1,6 @@
 # Comma 4: factory-reset installation
 
-The development repository is now [ryanafdahl/nrdr-jetstream](https://github.com/ryanafdahl/nrdr-jetstream). The custom-software entry below uses the new `nrdr-jetstream` branch in `ryanafdahl/openpilot`; no reinstall is needed solely for the rename.
+The development repository is now [ryanafdahl/745-OP](https://github.com/ryanafdahl/745-OP). The custom-software entry below uses the new `745-OP` branch in `ryanafdahl/openpilot`; no reinstall is needed solely for the rename.
 
 ## Install after a factory reset
 
@@ -9,21 +9,21 @@ The development repository is now [ryanafdahl/nrdr-jetstream](https://github.com
 3. Enter exactly:
 
 ```text
-ryanafdahl/nrdr-jetstream
+ryanafdahl/745-OP
 ```
 
 4. Keep the device powered and online while software downloads and compiles on first startup.
 
 No SSH, long URL, separate staging build, or rollback step is required.
 
-The new `nrdr-jetstream` install branch and legacy `nrdr-jetson`, `nrdr-OP-jetson-trt` / `nrdr-op-jetson-trt` branches point to the same candidate. Use `ryanafdahl/nrdr-jetstream` for new installations. A misspelled or nonexistent branch can misleadingly produce “incompatible openpilot version”; that message alone does not prove an OS mismatch.
+The `745-OP` install branch is the current candidate. Use `ryanafdahl/745-OP` for new installations; legacy branches retain their earlier candidates.
 
-Comma's setup screen expands `username/branch` to its compiled fork installer. This entry installs branch `nrdr-jetstream` from [ryanafdahl/openpilot](https://github.com/ryanafdahl/openpilot/tree/nrdr-jetstream). That branch publishes the candidate from this development repository; it currently points to `87e530f8914949b28e1fa00933b3297b7d0ee346`. It does not automatically track new development commits.
+Comma's setup screen expands `username/branch` to its compiled fork installer. This entry installs branch `745-OP` from [ryanafdahl/openpilot](https://github.com/ryanafdahl/openpilot/tree/745-OP). That branch publishes the candidate from this development repository; it currently points to `b92ad8d1086d38a1378b85e94753a7e17b2aea17`. It does not automatically track new development commits.
 
 The equivalent full URL is:
 
 ```text
-https://installer.comma.ai/ryanafdahl/nrdr-jetstream
+https://installer.comma.ai/ryanafdahl/745-OP
 ```
 
 The candidate targets comma 4 and AGNOS 19.7. The normal launcher handles OS compatibility and may run its AGNOS update procedure if the installed version differs. Keep stable power available through setup and compilation. A failed source build stops before manager starts.

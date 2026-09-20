@@ -93,7 +93,7 @@
         "type": "blob",
         "sha": "746aded2b7d687ccecf15a37bcff08ead0ccec0f"
       },
-      "decision": "Retained comma Connect destination text and JetStream branding."
+      "decision": "Retained comma Connect destination text and 745-OP branding."
     },
     "openpilot/nrdr/ui/settings/party_tricks.py": {
       "local": {

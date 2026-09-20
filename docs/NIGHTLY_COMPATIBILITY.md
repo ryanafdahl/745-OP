@@ -16,13 +16,13 @@ All nine deferred files were reviewed. Startup LKAS request retry is now a defau
 
 ## Retained behavior
 
-Driver-monitoring timeouts, communication-failure disengagement and no-entry alerts, controls-mismatch and turn warnings, event filtering, MADS activation, and allowed gears retain JetStream's existing behavior. Registration and uploads remain on comma Connect; Konik migration and its re-registration button were not ported.
+Driver-monitoring timeouts, communication-failure disengagement and no-entry alerts, controls-mismatch and turn warnings, event filtering, MADS activation, and allowed gears retain 745-OP's existing behavior. Registration and uploads remain on comma Connect; Konik migration and its re-registration button were not ported.
 
-Jetlink, NRDR JetStream branding, native-model fallback, and model caches remain unchanged. This is a selective compatibility port, not the complete nightly snapshot.
+Jetlink, 745-OP branding, native-model fallback, and model caches remain unchanged. This is a selective compatibility port, not the complete nightly snapshot.
 
 ## Validation
 
-[Source audit](https://github.com/ryanafdahl/nrdr-jetstream/actions/runs/35476805824) passed: 75 portable tests twice, source syntax/import checks, native model inputs, and protected-tree checks. The NRDR-tree audit at that revision allowed only the two reviewed hook files to differ from the clean base; the other protected trees remain exact matches.
+[Source audit](https://github.com/ryanafdahl/745-OP/actions/runs/35476805824) passed: 75 portable tests twice, source syntax/import checks, native model inputs, and protected-tree checks. The NRDR-tree audit at that revision allowed only the two reviewed hook files to differ from the clean base; the other protected trees remain exact matches.
 
 The six new tests also passed using the comma's Python runtime, before and after installation. A separate runtime check verified the speed-limit alert text and preservation of mismatch/turn event definitions.
 

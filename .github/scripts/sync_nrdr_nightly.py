@@ -56,7 +56,7 @@ def classify(path, before, after, ours):
   if not valid_path(path) or protected(path):
     return "protected integration area"
   if identity(ours) != identity(before):
-    return "JetStream differs from previous upstream snapshot"
+    return "745-OP differs from previous upstream snapshot"
   for entry in (before, after, ours):
     if entry and (entry["type"] != "blob" or entry["mode"] not in {"100644", "100755"}):
       return "symlink, submodule or unsupported mode"
@@ -76,7 +76,7 @@ def classify_entries(path, before, after, ours):
   if identity(ours) == identity(after):
     return "current"
   if identity(ours) != identity(before) and not protected(path):
-    return "JetStream differs from previous upstream snapshot"
+    return "745-OP differs from previous upstream snapshot"
   return classify(path, before, after, ours)
 
 
@@ -91,7 +91,7 @@ class GitHub:
       "Accept": "application/vnd.github+json",
       "X-GitHub-Api-Version": "2022-11-28",
       "Content-Type": "application/json",
-      "User-Agent": "nrdr-jetstream-upstream-sync",
+      "User-Agent": "745-OP-upstream-sync",
     })
     try:
       with urllib.request.urlopen(request, timeout=60) as response:
@@ -123,7 +123,7 @@ def readme_status(readme, sha, applied, pending, reviewed=0):
            f"Last observed snapshot: [`{sha[:12]}`](https://github.com/{UPSTREAM}/commit/{sha}). "
            f"This check applied **{applied}** compatible file updates; **{pending}** paths remain for manual integration. "
            f"**{reviewed}** file decisions have been reviewed. Daily commits target `jetson-trt`; the comma installer stays pinned. "
-           "[Changes and policy](https://github.com/ryanafdahl/nrdr-jetstream/blob/jetson-trt/docs/NRDR_NIGHTLY_SYNC.md).\n" + END)
+           "[Changes and policy](https://github.com/ryanafdahl/745-OP/blob/jetson-trt/docs/NRDR_NIGHTLY_SYNC.md).\n" + END)
   if START in readme:
     if readme.count(START) != 1 or readme.count(END) != 1 or readme.index(END) < readme.index(START):
       raise ValueError("Malformed README sync markers")
@@ -216,8 +216,8 @@ if __name__ == "__main__":
   parser.add_argument("--dry-run", action="store_true")
   args = parser.parse_args()
   repo = os.environ["GITHUB_REPOSITORY"]
-  if repo != "ryanafdahl/nrdr-jetstream":
-    raise SystemExit("This automation is scoped to ryanafdahl/nrdr-jetstream")
+  if repo != "ryanafdahl/745-OP":
+    raise SystemExit("This automation is scoped to ryanafdahl/745-OP")
   revision = run(GitHub(os.environ["GH_TOKEN"]), repo, args.dry_run)
   if os.getenv("GITHUB_OUTPUT"):
     with open(os.environ["GITHUB_OUTPUT"], "a") as output:

@@ -8,7 +8,7 @@ A successful source-audit workflow does not establish hardware compatibility or 
 
 ## Source revisions under review
 
-- Destination: `ryanafdahl/nrdr-jetstream`, branch `jetson-trt`.
+- Destination: `ryanafdahl/745-OP`, branch `jetson-trt`.
 - NRDR clean base: `b3366b5b56512805be8f0bf832b4981bfd958072`.
 - Zoompilot donor: `bcb49d740eb7f7181c2c4aba6de5177b03f88ba3`.
 - Jetlink server/client submodule: `a01fcae9709cb4924854f0c52806849c62dec5c9` in `zoompilot/jetlink`.
@@ -25,7 +25,7 @@ The following remain required: a clean target build, native boot/import checks, 
 
 ## Corrections to earlier installation instructions
 
-The earlier `installer.comma.ai/ryanafdahl/jetson-trt` URL is **not a verified installer for this repository**. The documented comma example uses an account's `openpilot` repository; this development repository is now named `nrdr-jetstream`. It is now public. The direct installation guide now uses `ryanafdahl/nrdr-jetstream`, backed by a published candidate branch in `ryanafdahl/openpilot`. The earlier raw Python URL is invalid for the setup screen because that screen requires an ELF installer.
+The earlier `installer.comma.ai/ryanafdahl/jetson-trt` URL is **not a verified installer for this repository**. The documented comma example uses an account's `openpilot` repository; this development repository is now named `745-OP`. It is now public. The direct installation guide now uses `ryanafdahl/745-OP`, backed by a published candidate branch in `ryanafdahl/openpilot`. The earlier raw Python URL is invalid for the setup screen because that screen requires an ELF installer.
 
 Before any install, inspect the actual installer payload and establish that its repository, branch, revision, authentication and submodule behavior match this project. Use an authenticated staging method or a reviewed installer with the exact repository. Do not put a GitHub token in a publicly shared URL, publish the repository without explicit permission, or rename it merely to follow the earlier URL.
 
@@ -76,7 +76,7 @@ Use the full commit SHA from a **successful source-audit run containing this too
 set -euo pipefail
 REV=REPLACE_WITH_REVIEWED_40_CHARACTER_COMMIT_SHA
 STAGE="/data/jetson-trt-stage-$REV"
-GIT_LFS_SKIP_SMUDGE=1 git clone --no-checkout https://github.com/ryanafdahl/nrdr-jetstream.git "$STAGE"
+GIT_LFS_SKIP_SMUDGE=1 git clone --no-checkout https://github.com/ryanafdahl/745-OP.git "$STAGE"
 cd "$STAGE"
 git checkout --detach "$REV"
 git submodule update --init --recursive

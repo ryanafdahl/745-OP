@@ -16,7 +16,7 @@ class FakeAPI:
     self.trees = {}
     self.contents = {}
     for ref, files in ((INITIAL_BASE, before), ("new", after), ("ours", {
-      "README.md": "# JetStream\n", **ours,
+      "README.md": "# 745-OP\n", **ours,
       STATE: json.dumps({"upstream_sha": INITIAL_BASE, "pending": pending or {}}),
     })):
       self.trees[ref] = {path: blob(content) for path, content in files.items()}
