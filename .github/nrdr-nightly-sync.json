@@ -1,0 +1,16 @@
+{
+  "upstream_repo": "nrdr/openpilot",
+  "upstream_branch": "nrdr-nightly",
+  "upstream_sha": "e0bf1e63b2ea2bcbe1d48c990d0e6786ccfbe50e",
+  "pending": {
+    "openpilot/nrdr/config/backend_env.sh": "protected integration area",
+    "openpilot/nrdr/features/driver_policy/mads.py": "protected integration area",
+    "openpilot/nrdr/hooks/driver_monitoring.py": "protected integration area",
+    "openpilot/nrdr/hooks/events.py": "protected integration area",
+    "openpilot/nrdr/hooks/events_sp.py": "protected integration area",
+    "openpilot/nrdr/ui/home/layout.py": "protected integration area",
+    "openpilot/nrdr/ui/home/mici.py": "protected integration area",
+    "openpilot/nrdr/ui/settings/party_tricks.py": "protected integration area",
+    "openpilot/selfdrive/selfdrived/events.py": "protected integration area"
+  }
+}

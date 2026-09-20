@@ -70,3 +70,9 @@ Development: [jetson-trt](https://github.com/ryanafdahl/nrdr-jetstream/tree/jets
 [Install guide](https://github.com/ryanafdahl/nrdr-jetstream/blob/jetson-trt/docs/JETSON_INSTALL.md) · [Hardware checks](https://github.com/ryanafdahl/nrdr-jetstream/blob/jetson-trt/docs/COMMA4_JETSON_PARKED_TEST.md)
 
 Built on NRDR, comma.ai, sunnypilot, Zoompilot, and Jetlink. [License](https://github.com/ryanafdahl/nrdr-jetstream/blob/jetson-trt/LICENSE) · [Additional notices](https://github.com/ryanafdahl/nrdr-jetstream/blob/jetson-trt/LICENSE.md).
+
+<!-- nrdr-nightly-sync:start -->
+### Daily NRDR nightly updates
+
+Last observed snapshot: [`e0bf1e63b2ea`](https://github.com/nrdr/openpilot/commit/e0bf1e63b2ea2bcbe1d48c990d0e6786ccfbe50e). This check applied **0** compatible file updates; **9** paths remain for manual integration. Daily commits target `jetson-trt`; the comma installer stays pinned. [Changes and policy](https://github.com/ryanafdahl/nrdr-jetstream/blob/jetson-trt/docs/NRDR_NIGHTLY_SYNC.md).
+<!-- nrdr-nightly-sync:end -->
