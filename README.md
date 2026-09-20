@@ -34,6 +34,8 @@ Keep power and internet connected through installation and first-boot compilatio
 
 **Fan:** the test Jetson uses NVIDIA’s `cool` profile (`FAN_DEFAULT_PROFILE cool` in `/etc/nvfancontrol.conf`). Confirmed after reboot on September 20 at 17:28 UTC: `nvfancontrol -q` reports `FAN_PROFILE:cool`, governor `cont`, and control `close_loop`; nvfancontrol and Jetlink services are active. SSH over USB Wi-Fi is reachable.
 
+**Jetson server verified September 20, 2026:** the running container’s 44 Python files and 14 scripts match Jetlink upstream `c167cc4`. Zoompilot `jetson-trt` pins Jetlink `a01fcae` (v0.3.0a1); subsequent changes do not alter server runtime code. Jetlink is active with the cached Cinque Terre engine (`09d080f36965bb2a`), waiting for USB. This confirms engine loading, not live inference. Power remains **25 W** and fan profile **cool**; no rebuild was needed.
+
 A flashing GPU icon can mean download, preparation, or connection waiting. Confirm operation using the matching model hash, live `modelV2.big=true`, valid/alive messages, and fresh Jetlink telemetry.
 
 ## Latest capture · September 20, 2026
