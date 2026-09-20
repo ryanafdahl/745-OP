@@ -32,6 +32,8 @@ Keep power and internet connected through installation and first-boot compilatio
 4. While parked, enable **Settings → Models → Accelerator Link** and select the big model.
 5. Prepare the model online, or precache it on the Jetson before moving it to the car.
 
+**Fan:** the test Jetson uses NVIDIA’s `cool` profile (`FAN_DEFAULT_PROFILE cool` in `/etc/nvfancontrol.conf`). The running controller confirmed `cool` before the September 20 reboot; post-reboot confirmation is pending because network access dropped.
+
 A flashing GPU icon can mean download, preparation, or connection waiting. Confirm operation using the matching model hash, live `modelV2.big=true`, valid/alive messages, and fresh Jetlink telemetry.
 
 ## Latest capture · September 20, 2026
