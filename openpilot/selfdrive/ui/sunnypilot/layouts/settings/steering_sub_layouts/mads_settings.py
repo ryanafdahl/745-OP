@@ -48,6 +48,15 @@ class MadsSettingsLayout(Widget):
       description=MADS_MAIN_CRUISE_BASE_DESC,
       param="MadsMainCruiseAllowed",
     )
+    self._auto_lkas_toggle = toggle_item_sp(
+      title=lambda: tr("Retry Startup Lane Centering (Default: OFF)"),
+      description=lambda: tr(
+        "With main-cruise engagement enabled, retry the initial lane-centering request until MADS accepts it. "
+        "Normal readiness and fault checks still apply. After engagement, manual disengagement is respected "
+        "until main cruise is switched off and back on."
+      ),
+      param="JetstreamAutoLkas",
+    )
     self._unified_engagement_toggle = toggle_item_sp(
       title=lambda: tr("Unified Engagement Mode (UEM)"),
       description=MADS_UNIFIED_ENGAGEMENT_MODE_BASE_DESC,
@@ -65,6 +74,7 @@ class MadsSettingsLayout(Widget):
 
     self.items = [
       self._main_cruise_toggle,
+      self._auto_lkas_toggle,
       self._unified_engagement_toggle,
       self._steering_mode,
     ]
@@ -112,6 +122,9 @@ class MadsSettingsLayout(Widget):
     self._steering_mode.show_description(True)
 
   def _update_toggles(self):
+    self._auto_lkas_toggle.action_item.set_enabled(
+      ui_state.is_offroad() and not self._mads_limited_settings() and ui_state.params.get_bool("MadsMainCruiseAllowed")
+    )
     self._update_steering_mode_description(self._steering_mode.action_item.get_selected_button())
     if self._mads_limited_settings():
       ui_state.params.remove("MadsMainCruiseAllowed")

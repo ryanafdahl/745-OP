@@ -1,25 +1,29 @@
-# Daily NRDR nightly sync
+# NRDR nightly integration review · September 20, 2026
 
-Upstream: [e0bf1e63b2ea2bcbe1d48c990d0e6786ccfbe50e](https://github.com/nrdr/openpilot/commit/e0bf1e63b2ea2bcbe1d48c990d0e6786ccfbe50e)
+Reviewed all nine deferred paths from [NRDR nightly e0bf1e63](https://github.com/nrdr/openpilot/commit/e0bf1e63b2ea2bcbe1d48c990d0e6786ccfbe50e).
 
-Previous observed snapshot: `b3366b5b56512805be8f0bf832b4981bfd958072`. Target before this commit: `20d4eb5c65112fe0bde4425b80ba6a4f8b87f097`.
+**One adapted feature, two previously integrated changes, six retained JetStream behaviors.** This is a selective integration, not an exact nightly mirror. No installation or device-setting change was performed.
 
-The upstream marker records observation, not full integration. Updates only copy ordinary text files that still match the previous upstream snapshot. Customized files, driving/safety logic, model/Jetlink integration, OS/build assets, dependencies, and automation require manual review. Unresolved paths carry forward into subsequent reports. No upstream code runs in the write-token job.
+## Newly integrated
 
-The workflow checks daily at 10:23 UTC and can run manually. It commits to `jetson-trt`, then runs the existing source audit against that exact commit. An audit failure is visible in Actions and does not deploy or roll back the commit. The installer and installed comma remain pinned.
+**Steering → MADS → Retry Startup Lane Centering (Default: OFF)** adds nightly's startup request retry behind the new persistent `JetstreamAutoLkas` toggle. It requires main-cruise engagement to be enabled, requests engagement through the existing MADS state machine, and does not directly activate controls. The option can only be changed offroad in the UI. Once MADS engages, manual disengagement remains respected until main cruise cycles off/on. Turning the option off stops further requests; normal steering controls remain responsible for disengagement.
 
-## Applied files
+This is source integration only: the target Params library must be rebuilt before installation, and the new option remains unqualified on physical hardware. The installer remains pinned to the existing build.
 
-None.
+## File decisions
 
-## Manual integration
+- `openpilot/nrdr/config/backend_env.sh` — Retained comma Connect registration/uploads at the user's request; no Konik migration.
+- `openpilot/nrdr/features/driver_policy/mads.py` — Adapted nightly startup-request retry as JetstreamAutoLkas, default off, using normal MADS readiness checks.
+- `openpilot/nrdr/hooks/driver_monitoring.py` — Retained driver-monitoring timeouts; excluded nightly's 24-hour timeout overrides.
+- `openpilot/nrdr/hooks/events.py` — Integrated longitudinal interlocks previously; retained event reporting, lateral fault handling and existing allowed gears.
+- `openpilot/nrdr/hooks/events_sp.py` — Integrated speed-limit messages/chime previously; retained controls-mismatch and turn alerts.
+- `openpilot/nrdr/ui/home/layout.py` — Retained comma Connect destination text, consistent with the selected backend.
+- `openpilot/nrdr/ui/home/mici.py` — Retained comma Connect destination text and JetStream branding.
+- `openpilot/nrdr/ui/settings/party_tricks.py` — Kept Konik re-registration hidden because this build uses comma Connect.
+- `openpilot/selfdrive/selfdrived/events.py` — Retained communication-failure disengagement/no-entry alerts and Jetlink reconnection guidance.
 
-- `openpilot/nrdr/config/backend_env.sh` — protected integration area
-- `openpilot/nrdr/features/driver_policy/mads.py` — protected integration area
-- `openpilot/nrdr/hooks/driver_monitoring.py` — protected integration area
-- `openpilot/nrdr/hooks/events.py` — protected integration area
-- `openpilot/nrdr/hooks/events_sp.py` — protected integration area
-- `openpilot/nrdr/ui/home/layout.py` — protected integration area
-- `openpilot/nrdr/ui/home/mici.py` — protected integration area
-- `openpilot/nrdr/ui/settings/party_tricks.py` — protected integration area
-- `openpilot/selfdrive/selfdrived/events.py` — protected integration area
+## Validation and future checks
+
+Six new unit tests cover opt-in/main-cruise gating, startup retries, cancellation, rearming, disabling the option, and already-engaged behavior. They passed locally. Thirteen snapshot-updater tests passed, including stable review records, changed upstream blobs and changed local blobs. The full [source audit](https://github.com/ryanafdahl/nrdr-jetstream/actions/workflows/validate-jetson-trt.yml) runs on the integration commit.
+
+The daily workflow records each decision against both upstream and local Git blob identities. These nine reviewed differences are no longer unresolved items. A later change to either side invalidates its review and returns the file to manual integration; protected source is never silently overwritten.

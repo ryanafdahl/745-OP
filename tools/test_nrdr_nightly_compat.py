@@ -35,5 +35,66 @@ class NightlyCompatibilityTests(unittest.TestCase):
     for name in range(256):
       self.assertFalse(events.keep_lateral_active(name))
 
+class AutoLkasTests(unittest.TestCase):
+  def setUp(self):
+    from openpilot.nrdr.features.driver_policy.mads import AutoLkas
+    self.params = SimpleNamespace(enabled=False)
+    self.params.get_bool = lambda key: self.params.enabled
+    self.policy = AutoLkas(self.params)
+    self.cs = SimpleNamespace(cruiseState=SimpleNamespace(available=True))
+    self.events = set()
+    self.names = SimpleNamespace(lkasEnable=7)
+
+  def request(self, main=True):
+    self.events.clear()
+    self.policy.request(self.cs, main, self.events, self.names)
+    return bool(self.events)
+
+  def test_default_off_and_main_toggle_required(self):
+    self.assertFalse(self.request())
+    self.params.enabled = True
+    self.assertFalse(self.request(main=False))
+    self.assertTrue(self.request())
+
+  def test_initial_block_retries_without_direct_engagement(self):
+    self.params.enabled = True
+    self.assertTrue(self.request())
+    self.policy.update(False)
+    self.assertTrue(self.request())
+    self.assertFalse(self.policy.enabled_prev)
+
+  def test_manual_disengagement_does_not_reengage(self):
+    self.params.enabled = True
+    self.assertTrue(self.request())
+    self.policy.update(True)
+    self.assertFalse(self.request())
+    self.policy.update(False)
+    self.assertFalse(self.request())
+
+  def test_main_cruise_cycle_rearms(self):
+    self.params.enabled = True
+    self.request()
+    self.policy.update(True)
+    self.policy.update(False)
+    self.cs.cruiseState.available = False
+    self.assertFalse(self.request())
+    self.cs.cruiseState.available = True
+    self.assertTrue(self.request())
+
+  def test_disabling_option_stops_retries(self):
+    self.params.enabled = True
+    self.assertTrue(self.request())
+    self.params.enabled = False
+    self.assertFalse(self.request())
+    self.assertFalse(self.policy.armed)
+
+  def test_already_enabled_does_not_request(self):
+    self.params.enabled = True
+    self.policy.update(True)
+    self.assertFalse(self.request())
+    self.policy.update(False)
+    # The opt-in edge while already enabled must not rearm after cancellation.
+    self.assertFalse(self.request())
+
 if __name__ == "__main__":
   unittest.main()

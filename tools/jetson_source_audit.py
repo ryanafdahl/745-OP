@@ -52,8 +52,9 @@ for path in ('panda', 'opendbc_repo', 'openpilot/nrdr', 'openpilot/selfdrive/con
              'openpilot/selfdrive/car', 'openpilot/selfdrive/monitoring'):
     if path == 'openpilot/nrdr':
         changed_nrdr = set(git('diff', '--name-only', base, 'HEAD', '--', path).splitlines())
-        check(changed_nrdr <= {'openpilot/nrdr/hooks/events.py', 'openpilot/nrdr/hooks/events_sp.py'},
-              'NRDR changes limited to reviewed longitudinal gate and speed-limit alerts')
+        check(changed_nrdr <= {'openpilot/nrdr/hooks/events.py', 'openpilot/nrdr/hooks/events_sp.py',
+                              'openpilot/nrdr/features/driver_policy/mads.py'},
+              'NRDR changes limited to reviewed interlocks, speed-limit alerts and opt-in startup request')
     else:
         check(git('rev-parse', f'{base}:{path}') == git('rev-parse', f'HEAD:{path}'),
               f'unchanged NRDR tree: {path}')

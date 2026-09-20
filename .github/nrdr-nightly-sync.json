@@ -2,15 +2,124 @@
   "upstream_repo": "nrdr/openpilot",
   "upstream_branch": "nrdr-nightly",
   "upstream_sha": "e0bf1e63b2ea2bcbe1d48c990d0e6786ccfbe50e",
-  "pending": {
-    "openpilot/nrdr/config/backend_env.sh": "protected integration area",
-    "openpilot/nrdr/features/driver_policy/mads.py": "protected integration area",
-    "openpilot/nrdr/hooks/driver_monitoring.py": "protected integration area",
-    "openpilot/nrdr/hooks/events.py": "protected integration area",
-    "openpilot/nrdr/hooks/events_sp.py": "protected integration area",
-    "openpilot/nrdr/ui/home/layout.py": "protected integration area",
-    "openpilot/nrdr/ui/home/mici.py": "protected integration area",
-    "openpilot/nrdr/ui/settings/party_tricks.py": "protected integration area",
-    "openpilot/selfdrive/selfdrived/events.py": "protected integration area"
+  "pending": {},
+  "reviewed": {
+    "openpilot/nrdr/config/backend_env.sh": {
+      "local": {
+        "mode": "100644",
+        "type": "blob",
+        "sha": "12c6b642bb17315d31c70e72b617e12857983499"
+      },
+      "upstream": {
+        "mode": "100644",
+        "type": "blob",
+        "sha": "f366ab948350a189f418d2b73aa92a282a5b6a1e"
+      },
+      "decision": "Retained comma Connect registration/uploads at the user's request; no Konik migration."
+    },
+    "openpilot/nrdr/features/driver_policy/mads.py": {
+      "local": {
+        "mode": "100644",
+        "type": "blob",
+        "sha": "818a3f97de83bb4beae20b29145859024a3fc0b4"
+      },
+      "upstream": {
+        "mode": "100644",
+        "type": "blob",
+        "sha": "98525d12a94f88ca0d1ac305cd82a452d0ff2b87"
+      },
+      "decision": "Adapted nightly startup-request retry as JetstreamAutoLkas, default off, using normal MADS readiness checks."
+    },
+    "openpilot/nrdr/hooks/driver_monitoring.py": {
+      "local": {
+        "mode": "100644",
+        "type": "blob",
+        "sha": "a7d3cb196896a89dd59547ec39b2bdd84b0612cc"
+      },
+      "upstream": {
+        "mode": "100644",
+        "type": "blob",
+        "sha": "590833ea8a7ce88667b416a053d126b5a6265c34"
+      },
+      "decision": "Retained driver-monitoring timeouts; excluded nightly's 24-hour timeout overrides."
+    },
+    "openpilot/nrdr/hooks/events.py": {
+      "local": {
+        "mode": "100644",
+        "type": "blob",
+        "sha": "05cfbcbda90dd378fa2f81a446f4976a80d995ad"
+      },
+      "upstream": {
+        "mode": "100644",
+        "type": "blob",
+        "sha": "4d031e0dd6461a88ad4fa19925654c00f80db4b1"
+      },
+      "decision": "Integrated longitudinal interlocks previously; retained event reporting, lateral fault handling and existing allowed gears."
+    },
+    "openpilot/nrdr/hooks/events_sp.py": {
+      "local": {
+        "mode": "100644",
+        "type": "blob",
+        "sha": "9d655bf4bc4c157d52ae0114403beff1b4a5a9f6"
+      },
+      "upstream": {
+        "mode": "100644",
+        "type": "blob",
+        "sha": "8d8c8c8b8e3385b7602debaa1a69dcbed8cbecd9"
+      },
+      "decision": "Integrated speed-limit messages/chime previously; retained controls-mismatch and turn alerts."
+    },
+    "openpilot/nrdr/ui/home/layout.py": {
+      "local": {
+        "mode": "100644",
+        "type": "blob",
+        "sha": "85eaf4973499594ed6db961ad892b02800b7f399"
+      },
+      "upstream": {
+        "mode": "100644",
+        "type": "blob",
+        "sha": "22f1a2bd8bf031aa05d5af63bd22348aee40d1b6"
+      },
+      "decision": "Retained comma Connect destination text, consistent with the selected backend."
+    },
+    "openpilot/nrdr/ui/home/mici.py": {
+      "local": {
+        "mode": "100644",
+        "type": "blob",
+        "sha": "d9ffb16db21d79c204a5fce300de133414fbe0be"
+      },
+      "upstream": {
+        "mode": "100644",
+        "type": "blob",
+        "sha": "746aded2b7d687ccecf15a37bcff08ead0ccec0f"
+      },
+      "decision": "Retained comma Connect destination text and JetStream branding."
+    },
+    "openpilot/nrdr/ui/settings/party_tricks.py": {
+      "local": {
+        "mode": "100644",
+        "type": "blob",
+        "sha": "a506530f23326cfe52810a73c1b366ad7b6bccdd"
+      },
+      "upstream": {
+        "mode": "100644",
+        "type": "blob",
+        "sha": "8e31015f24f14b0abae9e61d21a0448750937688"
+      },
+      "decision": "Kept Konik re-registration hidden because this build uses comma Connect."
+    },
+    "openpilot/selfdrive/selfdrived/events.py": {
+      "local": {
+        "mode": "100755",
+        "type": "blob",
+        "sha": "619a031b44e5e70df87173f61ae446e2bf6cc197"
+      },
+      "upstream": {
+        "mode": "100755",
+        "type": "blob",
+        "sha": "89339af56a9cab2670fcfd134a9f117adfc9a32b"
+      },
+      "decision": "Retained communication-failure disengagement/no-entry alerts and Jetlink reconnection guidance."
+    }
   }
 }
