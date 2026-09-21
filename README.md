@@ -46,7 +46,7 @@ Across **1,302** Jetson telemetry samples: **61.40°C mean / 64.3°C peak**, **1
 
 Paired frame 6567 shows **21.5 ms processing + 78.8 ms send** on Jetson and **105.9 ms reply wait** on comma. The 338 Jetson warning samples averaged **19.45 ms GPU / 12.03 ms send**; these are not whole-drive averages. Model-lag and other process soft-disable alerts remain to investigate; temporary steering-fault flags totaled **16.64 s**.
 
-**Startup investigation, September 21:** two failed boots show NVIDIA GPU-driver crashes during Xorg startup before Wi-Fi connected. The experimental power-service ordering was **reverted**; the original power-profile startup issue remains unresolved. Current Jetlink and cool fan services are active. USB Wi-Fi connected automatically in **21.5 s**, with **10/10** gateway pings and **3.28 ms** mean latency. Power selection remains **25 W**. Raw diagnostics and original/experimental service files are saved privately.
+**Headless Jetson verified September 21, 01:16 UTC:** boots to `multi-user.target`; GDM/Xorg and the display-only loader are disabled. Desktop packages remain installed; CUDA/TensorRT compute support is retained. The compute GPU driver loads before the **25 W** profile, and Jetlink waits for successful power setup. **Two consecutive reboot checks passed**: power service exit **0**, cool fan active, Wi-Fi/Ethernet connected, cached BMRLNAP engine ready. Earlier Xorg/GPU-driver crashes prompted this change. Live inference and long-term stability still need a connected test. Original configuration and logs are backed up privately.
 
 ## Latest capture · September 20, 2026
 
