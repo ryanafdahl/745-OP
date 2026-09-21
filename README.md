@@ -46,7 +46,7 @@ Across **1,302** Jetson telemetry samples: **61.40°C mean / 64.3°C peak**, **1
 
 Paired frame 6567 shows **21.5 ms processing + 78.8 ms send** on Jetson and **105.9 ms reply wait** on comma. The 338 Jetson warning samples averaged **19.45 ms GPU / 12.03 ms send**; these are not whole-drive averages. Model-lag and other process soft-disable alerts remain to investigate; temporary steering-fault flags totaled **16.64 s**.
 
-Post-drive check: **25 W selected, cool fan active**. The power-profile boot service failed while requesting a reboot after GPU initialization; current clocks differ from drive readings. No settings changed. Both devices’ logs were saved privately and archive hashes verified.
+Post-drive check: **25 W selected, cool fan active**. The power-profile boot service failed after GPU initialization. A startup-order repair is **pending verification**: the first reboot reproduced the failure; SSH has not returned after the second adjustment. Physical recovery is required before claiming the repair succeeded. Power/fan profiles and comma software were not changed. Both devices’ captured logs remain private with verified archive hashes.
 
 ## Latest capture · September 20, 2026
 
