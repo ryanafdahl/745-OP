@@ -38,6 +38,16 @@ Keep power and internet connected through installation and first-boot compilatio
 
 A flashing GPU icon can mean download, preparation, or connection waiting. Confirm operation using the matching model hash, live `modelV2.big=true`, valid/alive messages, and fresh Jetlink telemetry.
 
+## Latest paired log review · September 20, 2026
+
+BMRLNAP v4, **22:06:14–22:31:14 UTC**: 26 segments, **25:00 / 9.910 km**. Large model: **27,585 / 29,746 messages (92.74%)**, with one startup handoff and no later fallback. Overall model execution, including native startup: **33.42 ms mean / 36.48 ms p95**.
+
+Across **1,302** Jetson telemetry samples: **61.40°C mean / 64.3°C peak**, **13.21 W**, **77.29% GPU at 1,020 MHz**, **4,377 RPM**; all reported `dead=false`. These BMRLNAP results remain separate from Cinque Terre totals.
+
+Paired frame 6567 shows **21.5 ms processing + 78.8 ms send** on Jetson and **105.9 ms reply wait** on comma. The 338 Jetson warning samples averaged **19.45 ms GPU / 12.03 ms send**; these are not whole-drive averages. Model-lag and other process soft-disable alerts remain to investigate; temporary steering-fault flags totaled **16.64 s**.
+
+Post-drive check: **25 W selected, cool fan active**. The power-profile boot service failed while requesting a reboot after GPU initialization; current clocks differ from drive readings. No settings changed. Both devices’ logs were saved privately and archive hashes verified.
+
 ## Latest capture · September 20, 2026
 
 Collected logs from both devices. The latest recording includes early accelerator interruptions and a later uninterrupted large-model interval; the owner reports correcting insufficient power between drives. TP-Link USB Wi-Fi automatically reconnects after reboot with Ethernet unplugged; internet checks passed and the internal radios remain disabled. [Capture and hardware details](https://github.com/ryanafdahl/745-OP/blob/jetson-trt/docs/JETSON_WIFI_AND_CAPTURE_2026-09-20.md).
