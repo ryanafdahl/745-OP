@@ -44,6 +44,8 @@ A flashing GPU icon can mean download, preparation, or connection waiting. Confi
 
 One unexpected USB interruption at **01:39:35 UTC**, while moving about **16 mph**, matched Jetson I/O errors and a USB 3 reset. Native fallback lasted **6.1 s**, then the large model recovered. The final stationary disconnect was intentional, confirmed by the owner. Big-model/lag soft-disable alerts and **21.22 s** of temporary steering-fault flags were recorded; no CAN timeouts or permanent steering faults. USB reliability remains the next investigation.
 
+**USB follow-up:** the original failure was a FunctionFS write returning `ENODEV` with controller state `default`, rather than an inference-response timeout. Comma kernel USB disconnect→SuperSpeed configured events spanned about **253 ms**; a failed reconnect and **5 s retry backoff** preceded large-model recovery. Jetson logged **16 I/O errors in one burst**, then a USB reset; both processes survived. Cable/contact, controller/driver and reset initiation remain unresolved. The intentional final unplug is excluded. Next: stationary paired-log comparison of cable/port conditions at unchanged 25 W; no transport settings changed and no new drive samples added.
+
 Two BMRLNAP drives now total **1,904 telemetry samples**: weighted means **60.82°C / 13.05 W / 81.07% GPU / 4,285 RPM**. They used different GPU clocks, so this is descriptive aggregation, not a controlled performance comparison. Cinque Terre stays separate. Raw logs from both devices are saved privately with verified hashes.
 
 ## Latest comma check · September 21, 2026
