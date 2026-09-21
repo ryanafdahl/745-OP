@@ -38,6 +38,10 @@ Keep power and internet connected through installation and first-boot compilatio
 
 A flashing GPU icon can mean download, preparation, or connection waiting. Confirm operation using the matching model hash, live `modelV2.big=true`, valid/alive messages, and fresh Jetlink telemetry.
 
+## Latest comma check · September 21, 2026
+
+At **01:30 UTC**, installed `745-OP` commit **`aa2fd69`** matches the latest published device branch; NRDR nightly and Zoompilot/Jetlink upstream revisions are unchanged. Latest source audit passed. Newest recording: **00:18:05–00:19:01 UTC**, **56.57 s / 51.60 m**, **893 native-model messages** (892 valid), **28.62 ms mean execution**, no model-message gaps over 100 ms. Controls stayed inactive; temporary steering-fault flags totaled **6.50 s**. No Jetson telemetry or large-model handoff was recorded. The latest full drive remains the BMRLNAP recording below; it is not counted again. A connected test is still needed after the headless Jetson changes.
+
 ## Latest paired log review · September 20, 2026
 
 BMRLNAP v4, **22:06:14–22:31:14 UTC**: 26 segments, **25:00 / 9.910 km**. Large model: **27,585 / 29,746 messages (92.74%)**, with one startup handoff and no later fallback. Overall model execution, including native startup: **33.42 ms mean / 36.48 ms p95**.
