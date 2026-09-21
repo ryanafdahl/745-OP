@@ -46,7 +46,7 @@ Across **1,302** Jetson telemetry samples: **61.40°C mean / 64.3°C peak**, **1
 
 Paired frame 6567 shows **21.5 ms processing + 78.8 ms send** on Jetson and **105.9 ms reply wait** on comma. The 338 Jetson warning samples averaged **19.45 ms GPU / 12.03 ms send**; these are not whole-drive averages. Model-lag and other process soft-disable alerts remain to investigate; temporary steering-fault flags totaled **16.64 s**.
 
-**Power-profile startup repaired and verified September 21, 01:08 UTC:** `nvpmodel` now finishes before display-driver loading and Jetlink; exit status **0**. Applied **25 W** limits: CPU **1,344 MHz**, GPU **918 MHz**, TPC/FBP masks **240/2**. Cool fan remains active; Ethernet and USB Wi-Fi connected. Jetlink loaded cached BMRLNAP and is waiting for USB; live inference still needs a connected test. Original service configuration is backed up. Both devices’ captured drive logs remain private.
+**Startup investigation, September 21:** two failed boots show NVIDIA GPU-driver crashes during Xorg startup before Wi-Fi connected. The experimental power-service ordering was **reverted**; the original power-profile startup issue remains unresolved. Current Jetlink and cool fan services are active. USB Wi-Fi connected automatically in **21.5 s**, with **10/10** gateway pings and **3.28 ms** mean latency. Power selection remains **25 W**. Raw diagnostics and original/experimental service files are saved privately.
 
 ## Latest capture · September 20, 2026
 
