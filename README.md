@@ -38,6 +38,14 @@ Keep power and internet connected through installation and first-boot compilatio
 
 A flashing GPU icon can mean download, preparation, or connection waiting. Confirm operation using the matching model hash, live `modelV2.big=true`, valid/alive messages, and fresh Jetlink telemetry.
 
+## Headless drive test · September 21, 2026
+
+**01:35:13–01:48:11 UTC · 12:58 · 4.524 km.** BMRLNAP v4 produced **12,730 valid large-model messages / 15,307 total (83.16%)**. Large-model execution: **38.57 ms mean / 40.50 ms p95**. Across **602** telemetry samples: **59.58°C mean / 61.4°C peak**, **12.69 W**, **89.23% GPU at 918 MHz**, **4,085 RPM**; all reported `dead=false`.
+
+One unexpected USB interruption at **01:39:35 UTC**, while moving about **16 mph**, matched Jetson I/O errors and a USB 3 reset. Native fallback lasted **6.1 s**, then the large model recovered. The final stationary disconnect was intentional, confirmed by the owner. Big-model/lag soft-disable alerts and **21.22 s** of temporary steering-fault flags were recorded; no CAN timeouts or permanent steering faults. USB reliability remains the next investigation.
+
+Two BMRLNAP drives now total **1,904 telemetry samples**: weighted means **60.82°C / 13.05 W / 81.07% GPU / 4,285 RPM**. They used different GPU clocks, so this is descriptive aggregation, not a controlled performance comparison. Cinque Terre stays separate. Raw logs from both devices are saved privately with verified hashes.
+
 ## Latest comma check · September 21, 2026
 
 At **01:30 UTC**, installed `745-OP` commit **`aa2fd69`** matches the latest published device branch; NRDR nightly and Zoompilot/Jetlink upstream revisions are unchanged. Latest source audit passed. Newest recording: **00:18:05–00:19:01 UTC**, **56.57 s / 51.60 m**, **893 native-model messages** (892 valid), **28.62 ms mean execution**, no model-message gaps over 100 ms. Controls stayed inactive; temporary steering-fault flags totaled **6.50 s**. No Jetson telemetry or large-model handoff was recorded. The latest full drive remains the BMRLNAP recording below; it is not counted again. A connected test is still needed after the headless Jetson changes.
