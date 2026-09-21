@@ -46,7 +46,7 @@ Across **1,302** Jetson telemetry samples: **61.40°C mean / 64.3°C peak**, **1
 
 Paired frame 6567 shows **21.5 ms processing + 78.8 ms send** on Jetson and **105.9 ms reply wait** on comma. The 338 Jetson warning samples averaged **19.45 ms GPU / 12.03 ms send**; these are not whole-drive averages. Model-lag and other process soft-disable alerts remain to investigate; temporary steering-fault flags totaled **16.64 s**.
 
-Post-drive check: **25 W selected, cool fan active**. The power-profile boot service failed after GPU initialization. A startup-order repair is **pending verification**: the first reboot reproduced the failure; SSH has not returned after the second adjustment. Physical recovery is required before claiming the repair succeeded. Power/fan profiles and comma software were not changed. Both devices’ captured logs remain private with verified archive hashes.
+**Power-profile startup repaired and verified September 21, 01:08 UTC:** `nvpmodel` now finishes before display-driver loading and Jetlink; exit status **0**. Applied **25 W** limits: CPU **1,344 MHz**, GPU **918 MHz**, TPC/FBP masks **240/2**. Cool fan remains active; Ethernet and USB Wi-Fi connected. Jetlink loaded cached BMRLNAP and is waiting for USB; live inference still needs a connected test. Original service configuration is backed up. Both devices’ captured drive logs remain private.
 
 ## Latest capture · September 20, 2026
 
