@@ -32,11 +32,21 @@ Keep power and internet connected through installation and first-boot compilatio
 4. While parked, enable **Settings → Models → Accelerator Link** and select the big model.
 5. Prepare the model online, or precache it on the Jetson before moving it to the car.
 
-**Fan:** the test Jetson uses NVIDIA’s `cool` profile (`FAN_DEFAULT_PROFILE cool` in `/etc/nvfancontrol.conf`). Confirmed after reboot on September 20 at 17:28 UTC: `nvfancontrol -q` reports `FAN_PROFILE:cool`, governor `cont`, and control `close_loop`; nvfancontrol and Jetlink services are active. SSH over USB Wi-Fi is reachable.
+**Fan:** the test Jetson uses NVIDIA’s `cool` profile (`FAN_DEFAULT_PROFILE cool` in `/etc/nvfancontrol.conf`). Confirmed after reboot on September 20 at 17:28 UTC: `nvfancontrol -q` reports `FAN_PROFILE:cool`, governor `cont`, and control `close_loop`; nvfancontrol and Jetlink services are active. Management switched to Ethernet on September 21; the USB Wi-Fi adapter has been removed.
 
 **Jetson server verified September 20, 2026:** the running container’s 44 Python files and 14 scripts match Jetlink upstream `c167cc4`. Zoompilot `jetson-trt` pins Jetlink `a01fcae` (v0.3.0a1); subsequent changes do not alter server runtime code. Jetlink is active with the cached Cinque Terre engine (`09d080f36965bb2a`), waiting for USB. This confirms engine loading, not live inference. Power remains **25 W** and fan profile **cool**; no rebuild was needed.
 
 A flashing GPU icon can mean download, preparation, or connection waiting. Confirm operation using the matching model hash, live `modelV2.big=true`, valid/alive messages, and fresh Jetlink telemetry.
+
+## Commute review · September 21, 2026
+
+**95.78 miles for the two main commute trips; 108.63 miles across all seven recordings** (231 full-rate segments, 3.80 recorded hours).
+
+BMRLNAP produced **36,967 valid large-model messages / 271,816 total (13.60%)**, averaging **38.71 ms** execution. The morning USB host disappeared at **06:32:52 PDT**, around **68 mph**, with no rejoin. Intentional disconnection is not yet confirmed. The **49.49-mile return trip ran entirely on the native model**, with no Jetson telemetry.
+
+Across **1,747 available telemetry samples**: **57.29°C mean / 59.8°C peak**, **12.64 W**, **89.46% GPU at 918 MHz**, **3,702 RPM**. Missing telemetry is unavailable. Temporary steering flags totaled **126.06 s**, with no permanent steering flags or CAN timeouts. Process-communication/model-lag alerts occurred with both models; the return trip also had a localization soft-disable alert and an **817.70 ms** model-message gap.
+
+Jetson management now uses **Ethernet**, with the USB Wi-Fi adapter removed. **25 W / cool fan** were verified at collection. [Full analysis, per-trip measurements, weighted history and next investigations](docs/COMMUTE_2026-09-21.md). Raw logs remain private.
 
 ## Headless drive test · September 21, 2026
 
@@ -50,9 +60,9 @@ One unexpected USB interruption at **01:39:35 UTC**, while moving about **16 mph
 
 Two BMRLNAP drives now total **1,904 telemetry samples**: weighted means **60.82°C / 13.05 W / 81.07% GPU / 4,285 RPM**. They used different GPU clocks, so this is descriptive aggregation, not a controlled performance comparison. Cinque Terre stays separate. Raw logs from both devices are saved privately with verified hashes.
 
-## Latest comma check · September 21, 2026
+## Earlier comma check · September 21, 2026
 
-At **01:30 UTC**, installed `745-OP` commit **`aa2fd69`** matches the latest published device branch; NRDR nightly and Zoompilot/Jetlink upstream revisions are unchanged. Latest source audit passed. Newest recording: **00:18:05–00:19:01 UTC**, **56.57 s / 51.60 m**, **893 native-model messages** (892 valid), **28.62 ms mean execution**, no model-message gaps over 100 ms. Controls stayed inactive; temporary steering-fault flags totaled **6.50 s**. No Jetson telemetry or large-model handoff was recorded. The latest full drive remains the BMRLNAP recording below; it is not counted again. A connected test is still needed after the headless Jetson changes.
+At **01:30 UTC**, installed `745-OP` commit **`aa2fd69`** matches the latest published device branch; NRDR nightly and Zoompilot/Jetlink upstream revisions are unchanged. Latest source audit passed. Newest recording: **00:18:05–00:19:01 UTC**, **56.57 s / 51.60 m**, **893 native-model messages** (892 valid), **28.62 ms mean execution**, no model-message gaps over 100 ms. Controls stayed inactive; temporary steering-fault flags totaled **6.50 s**. No Jetson telemetry or large-model handoff was recorded. This earlier short recording is not included again in the commute totals above.
 
 ## Latest paired log review · September 20, 2026
 
