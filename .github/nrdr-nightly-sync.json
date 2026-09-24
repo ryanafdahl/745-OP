@@ -1,8 +1,36 @@
 {
   "upstream_repo": "nrdr/openpilot",
   "upstream_branch": "nrdr-nightly",
-  "upstream_sha": "e0bf1e63b2ea2bcbe1d48c990d0e6786ccfbe50e",
-  "pending": {},
+  "upstream_sha": "56b4f1125accca62cf4f0b6d93eb1e01c5439c16",
+  "pending": {
+    "compile_commands.json": "protected integration area",
+    "openpilot/nrdr/tests/test_no_donation_promotions.py": "protected integration area",
+    "openpilot/selfdrive/controls/lib/longitudinal_mpc_lib/acados_ocp_long.json": "protected integration area",
+    "openpilot/selfdrive/controls/lib/longitudinal_mpc_lib/c_generated_code/Makefile": "protected integration area",
+    "openpilot/selfdrive/locationd/models/generated/libcar.so": "protected integration area",
+    "openpilot/selfdrive/modeld/models/dm_warp_1344x760_tinygrad.pkl": "protected integration area",
+    "openpilot/selfdrive/modeld/models/dm_warp_1928x1208_tinygrad.pkl": "protected integration area",
+    "openpilot/selfdrive/modeld/models/dmonitoring_model_tinygrad.pkl.chunk01of01": "protected integration area",
+    "openpilot/selfdrive/modeld/models/driving_tinygrad.pkl.chunk01of06": "protected integration area",
+    "openpilot/selfdrive/selfdrived/events.py": "protected integration area",
+    "panda/board/obj/body_h7.bin.signed": "protected integration area",
+    "panda/board/obj/body_h7/bootstub.elf": "protected integration area",
+    "panda/board/obj/body_h7/main.bin": "protected integration area",
+    "panda/board/obj/body_h7/main.elf": "protected integration area",
+    "panda/board/obj/bootstub.body_h7.bin": "protected integration area",
+    "panda/board/obj/bootstub.panda_h7.bin": "protected integration area",
+    "panda/board/obj/bootstub.panda_jungle_h7.bin": "protected integration area",
+    "panda/board/obj/gitversion.h": "protected integration area",
+    "panda/board/obj/panda_h7.bin.signed": "protected integration area",
+    "panda/board/obj/panda_h7/bootstub.elf": "protected integration area",
+    "panda/board/obj/panda_h7/main.bin": "protected integration area",
+    "panda/board/obj/panda_h7/main.elf": "protected integration area",
+    "panda/board/obj/panda_jungle_h7.bin.signed": "protected integration area",
+    "panda/board/obj/panda_jungle_h7/bootstub.elf": "protected integration area",
+    "panda/board/obj/panda_jungle_h7/main.bin": "protected integration area",
+    "panda/board/obj/panda_jungle_h7/main.elf": "protected integration area",
+    "panda/board/obj/version": "protected integration area"
+  },
   "reviewed": {
     "openpilot/nrdr/config/backend_env.sh": {
       "local": {
@@ -107,19 +135,6 @@
         "sha": "8e31015f24f14b0abae9e61d21a0448750937688"
       },
       "decision": "Kept Konik re-registration hidden because this build uses comma Connect."
-    },
-    "openpilot/selfdrive/selfdrived/events.py": {
-      "local": {
-        "mode": "100755",
-        "type": "blob",
-        "sha": "619a031b44e5e70df87173f61ae446e2bf6cc197"
-      },
-      "upstream": {
-        "mode": "100755",
-        "type": "blob",
-        "sha": "89339af56a9cab2670fcfd134a9f117adfc9a32b"
-      },
-      "decision": "Retained communication-failure disengagement/no-entry alerts and Jetlink reconnection guidance."
     }
   }
 }

@@ -120,7 +120,7 @@ Development: [jetson-trt](https://github.com/ryanafdahl/745-OP/tree/jetson-trt).
 Built on NRDR, comma.ai, sunnypilot, Zoompilot, and Jetlink. [License](https://github.com/ryanafdahl/745-OP/blob/jetson-trt/LICENSE) · [Additional notices](https://github.com/ryanafdahl/745-OP/blob/jetson-trt/LICENSE.md).
 
 <!-- nrdr-nightly-sync:start -->
-### Reviewed nightly integration
+### Daily NRDR nightly updates
 
-All nine deferred files reviewed: startup LKAS retry added as a **default-off** option; existing interlocks/speed-limit updates kept; comma Connect and monitoring/fault protections retained. **0 unresolved, 9 recorded decisions** for snapshot `e0bf1e63`. Changes on either side reopen review. Installed on the comma September 20 as `92c539b`: native build and 12 compatibility tests passed; UI, hardwared, pandad and jetlinkd were running in all 21 startup samples. Startup retry remains OFF. [Details](https://github.com/ryanafdahl/745-OP/blob/jetson-trt/docs/NRDR_NIGHTLY_SYNC.md).
+Last observed snapshot: [`56b4f1125acc`](https://github.com/nrdr/openpilot/commit/56b4f1125accca62cf4f0b6d93eb1e01c5439c16). This check applied **1** compatible file updates; **27** paths remain for manual integration. **8** file decisions have been reviewed. Daily commits target `jetson-trt`; the comma installer stays pinned. [Changes and policy](https://github.com/ryanafdahl/745-OP/blob/jetson-trt/docs/NRDR_NIGHTLY_SYNC.md).
 <!-- nrdr-nightly-sync:end -->

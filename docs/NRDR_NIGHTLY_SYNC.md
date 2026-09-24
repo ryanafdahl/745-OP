@@ -1,16 +1,48 @@
-# NRDR nightly integration review · September 20, 2026
+# Daily NRDR nightly sync
 
-Reviewed all nine deferred paths from [NRDR nightly e0bf1e63](https://github.com/nrdr/openpilot/commit/e0bf1e63b2ea2bcbe1d48c990d0e6786ccfbe50e).
+Upstream: [56b4f1125accca62cf4f0b6d93eb1e01c5439c16](https://github.com/nrdr/openpilot/commit/56b4f1125accca62cf4f0b6d93eb1e01c5439c16)
 
-**One adapted feature, two previously integrated changes, six retained 745-OP behaviors.** This is a selective integration, not an exact nightly mirror. Installed September 20 as `92c539b5d737915db3b3976967a4ff4080328145`, after on-device build and compatibility checks. The new option remains OFF.
+Previous observed snapshot: `e0bf1e63b2ea2bcbe1d48c990d0e6786ccfbe50e`. Target before this commit: `3652ee24fd0777dc2939839aeae87b7619e19e19`.
 
-## Newly integrated
+The upstream marker records observation, not full integration. Updates only copy ordinary text files that still match the previous upstream snapshot. Customized files, driving/safety logic, model/Jetlink integration, OS/build assets, dependencies, and automation require manual review. Unresolved paths carry forward into subsequent reports. No upstream code runs in the write-token job.
 
-**Steering → MADS → Retry Startup Lane Centering (Default: OFF)** adds nightly's startup request retry behind the new persistent `JetstreamAutoLkas` toggle. It requires main-cruise engagement to be enabled, requests engagement through the existing MADS state machine, and does not directly activate controls. The option can only be changed offroad in the UI. Once MADS engages, manual disengagement remains respected until main cruise cycles off/on. Turning the option off stops further requests; normal steering controls remain responsible for disengagement.
+The workflow checks daily at 10:23 UTC and can run manually. It commits to `jetson-trt`, then runs the existing source audit against that exact commit. An audit failure is visible in Actions and does not deploy or roll back the commit. The installer and installed comma remain pinned.
 
-The target Params library and full startup build completed on the comma; all 12 compatibility tests passed. A 10-second startup sample showed UI, hardwared, pandad and jetlinkd running in all 21 managerState updates. No driving qualification of the opt-in behavior is claimed. The installer branch now points to `92c539b`.
+## Applied files
 
-## File decisions
+- `openpilot/selfdrive/ui/mici/layouts/home.py`
+
+## Manual integration
+
+- `compile_commands.json` — protected integration area
+- `openpilot/nrdr/tests/test_no_donation_promotions.py` — protected integration area
+- `openpilot/selfdrive/controls/lib/longitudinal_mpc_lib/acados_ocp_long.json` — protected integration area
+- `openpilot/selfdrive/controls/lib/longitudinal_mpc_lib/c_generated_code/Makefile` — protected integration area
+- `openpilot/selfdrive/locationd/models/generated/libcar.so` — protected integration area
+- `openpilot/selfdrive/modeld/models/dm_warp_1344x760_tinygrad.pkl` — protected integration area
+- `openpilot/selfdrive/modeld/models/dm_warp_1928x1208_tinygrad.pkl` — protected integration area
+- `openpilot/selfdrive/modeld/models/dmonitoring_model_tinygrad.pkl.chunk01of01` — protected integration area
+- `openpilot/selfdrive/modeld/models/driving_tinygrad.pkl.chunk01of06` — protected integration area
+- `openpilot/selfdrive/selfdrived/events.py` — protected integration area
+- `panda/board/obj/body_h7.bin.signed` — protected integration area
+- `panda/board/obj/body_h7/bootstub.elf` — protected integration area
+- `panda/board/obj/body_h7/main.bin` — protected integration area
+- `panda/board/obj/body_h7/main.elf` — protected integration area
+- `panda/board/obj/bootstub.body_h7.bin` — protected integration area
+- `panda/board/obj/bootstub.panda_h7.bin` — protected integration area
+- `panda/board/obj/bootstub.panda_jungle_h7.bin` — protected integration area
+- `panda/board/obj/gitversion.h` — protected integration area
+- `panda/board/obj/panda_h7.bin.signed` — protected integration area
+- `panda/board/obj/panda_h7/bootstub.elf` — protected integration area
+- `panda/board/obj/panda_h7/main.bin` — protected integration area
+- `panda/board/obj/panda_h7/main.elf` — protected integration area
+- `panda/board/obj/panda_jungle_h7.bin.signed` — protected integration area
+- `panda/board/obj/panda_jungle_h7/bootstub.elf` — protected integration area
+- `panda/board/obj/panda_jungle_h7/main.bin` — protected integration area
+- `panda/board/obj/panda_jungle_h7/main.elf` — protected integration area
+- `panda/board/obj/version` — protected integration area
+
+## Reviewed decisions
 
 - `openpilot/nrdr/config/backend_env.sh` — Retained comma Connect registration/uploads at the user's request; no Konik migration.
 - `openpilot/nrdr/features/driver_policy/mads.py` — Adapted nightly startup-request retry as JetstreamAutoLkas, default off, using normal MADS readiness checks.
@@ -20,10 +52,3 @@ The target Params library and full startup build completed on the comma; all 12 
 - `openpilot/nrdr/ui/home/layout.py` — Retained comma Connect destination text, consistent with the selected backend.
 - `openpilot/nrdr/ui/home/mici.py` — Retained comma Connect destination text and 745-OP branding.
 - `openpilot/nrdr/ui/settings/party_tricks.py` — Kept Konik re-registration hidden because this build uses comma Connect.
-- `openpilot/selfdrive/selfdrived/events.py` — Retained communication-failure disengagement/no-entry alerts and Jetlink reconnection guidance.
-
-## Validation and future checks
-
-Six new unit tests cover opt-in/main-cruise gating, startup retries, cancellation, rearming, disabling the option, and already-engaged behavior. They passed locally. Thirteen snapshot-updater tests passed, including stable review records, changed upstream blobs and changed local blobs. The full [source audit](https://github.com/ryanafdahl/745-OP/actions/workflows/validate-jetson-trt.yml) runs on the integration commit.
-
-The daily workflow records each decision against both upstream and local Git blob identities. These nine reviewed differences are no longer unresolved items. A later change to either side invalidates its review and returns the file to manual integration; protected source is never silently overwritten.
