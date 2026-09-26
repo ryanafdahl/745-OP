@@ -122,5 +122,5 @@ Built on NRDR, comma.ai, sunnypilot, Zoompilot, and Jetlink. [License](https://g
 <!-- nrdr-nightly-sync:start -->
 ### Daily NRDR nightly updates
 
-Last observed snapshot: [`56b4f1125acc`](https://github.com/nrdr/openpilot/commit/56b4f1125accca62cf4f0b6d93eb1e01c5439c16). This check applied **1** compatible file updates; **27** paths remain for manual integration. **8** file decisions have been reviewed. Daily commits target `jetson-trt`; the comma installer stays pinned. [Changes and policy](https://github.com/ryanafdahl/745-OP/blob/jetson-trt/docs/NRDR_NIGHTLY_SYNC.md).
+Last observed snapshot: [`31bd1d6a2f9e`](https://github.com/nrdr/openpilot/commit/31bd1d6a2f9e2af1d645966b6f23e3318ae2f9f1). This check applied **4** compatible file updates; **85** paths remain for manual integration. **8** file decisions have been reviewed. Daily commits target `jetson-trt`; the comma installer stays pinned. [Changes and policy](https://github.com/ryanafdahl/745-OP/blob/jetson-trt/docs/NRDR_NIGHTLY_SYNC.md).
 <!-- nrdr-nightly-sync:end -->
